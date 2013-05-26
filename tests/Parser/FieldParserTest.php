@@ -78,6 +78,14 @@ class FieldParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $output);
     }
 
+    public function testFieldDefaultValue()
+    {
+        $parsed = $this->getParsedResults('username string 50; default "hello; world"; nullable;');
+
+        $this->assertArrayHasKey('default', $parsed);
+        $this->assertEquals('hello; world', $parsed['default']);
+    }
+
     private function getParsedResults($input)
     {
         $f = new FieldParser();

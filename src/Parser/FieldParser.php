@@ -13,6 +13,13 @@ class FieldParser
         // Else, parse the first segment as the actual field details
         $fieldData = $this->parseFieldData($segments[0]);
 
+        // Parse the other segments too and merge them with the fieldData
+        for ($i=1; $i<count($segments); $i++)
+        {
+            $result = $this->parseFieldModifier($segments[$i]);
+            $fieldData = array_merge($fieldData, $result);
+        }
+
         // Return the field data only for now
         return $fieldData;
     }
@@ -155,5 +162,29 @@ class FieldParser
             'type' => $type,
             'parameters' => $parameters
         );
+    }
+
+
+    public function parseFieldModifier($segment)
+    {
+        // Parse field modifiers as csv with space as the delimiter,
+        // which will allow quotes around things like the default value
+        $parsedSegment = str_getcsv($segment, " ");
+
+        // If we don't have any segments, return an empty array
+        if (empty($parsedSegment)) return array();
+
+        // Else, we'll start parsing
+        $command = $parsedSegment[0];
+        if ($command == 'default')
+        {
+            return array(
+                'default' => isset($parsedSegment[1]) ? $parsedSegment[1] : ""
+            );
+        }
+
+
+        // Finally, return an empty array. We'll do some error handling later
+        return array();
     }
 }
