@@ -94,6 +94,14 @@ class FieldParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(true, $parsed['nullable']);
     }
 
+    public function testFieldUnsigned()
+    {
+        $parsed = $this->getParsedResults('username string 50; default "hello; world"; unsigned;');
+
+        $this->assertArrayHasKey('unsigned', $parsed);
+        $this->assertEquals(true, $parsed['unsigned']);
+    }
+
     private function getParsedResults($input)
     {
         $f = new FieldParser();

@@ -186,6 +186,10 @@ class FieldParser
         {
             return array('nullable' => true);
         }
+        else if ($command == 'unsigned')
+        {
+            return array('unsigned' => true);
+        }
 
 
         // Finally, return an empty array. We'll do some error handling later
