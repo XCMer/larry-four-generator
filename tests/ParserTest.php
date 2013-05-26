@@ -41,6 +41,19 @@ class ParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('images', $parsed['Image']['migration']->tableName);
     }
 
+    public function testTimestampsParameter()
+    {
+        $parsed = $this->getParsedOutput($this->getSampleInput());
+
+        $this->assertEquals(false, $parsed['User']['migration']->timestamps);
+        $this->assertEquals(true, $parsed['Post']['migration']->timestamps);
+        $this->assertEquals(true, $parsed['Image']['migration']->timestamps);
+
+        $this->assertEquals(false, $parsed['User']['model']->timestamps);
+        $this->assertEquals(true, $parsed['Post']['model']->timestamps);
+        $this->assertEquals(true, $parsed['Image']['model']->timestamps);
+    }
+
     private function getParsedOutput($input)
     {
         $p = new Parser(new FieldParser(), new ModelDefinitionParser());
@@ -52,7 +65,6 @@ class ParserTest extends PHPUnit_Framework_TestCase
         return <<<EOF
 User users; hm Post;
     id increments
-    timestamps
     username string 50; default "hello world"; nullable;
     password string 64
     email string 250

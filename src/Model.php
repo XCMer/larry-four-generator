@@ -14,6 +14,12 @@ class Model
      */
     public $tableName;
 
+    /**
+     * The timestamps parameter which is false by default
+     * @var boolean
+     */
+    public $timestamps = false;
+
 
     public function __construct($modelName, $tableName = null)
     {

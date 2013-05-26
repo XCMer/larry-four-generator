@@ -57,6 +57,18 @@ class Parser
             if (preg_match('/^\s/', $line))
             {
                 // Line is a field definition
+                // Check if we have a model to work with
+                if (!$currentModel) die('Field definitions appearing before a model is defined.');
+
+                // Else, let's start working on the field
+                $parsed = $this->fieldParser->parse(trim($line));
+
+                // Check if the field is timestamps
+                if ($parsed['type'] == 'timestamps')
+                {
+                    $result[$currentModel]['model']->timestamps = true;
+                    $result[$currentModel]['migration']->timestamps = true;
+                }
             }
             else
             {
@@ -64,16 +76,14 @@ class Parser
                 // Parse it
                 $parsed = $this->modelDefinitionParser->parse(trim($line));
 
-                // Fill up the model details
+                // Create a new model and migration
                 $modelName = $parsed['modelName'];
-                $result[ $modelName ] = array(
-                    'model' => new Model($modelName, $parsed['tableName']),
-                );
+                $model = new Model($modelName, $parsed['tableName']);
+                $migration = new Migration($model->tableName);
 
-                // Fill up the migration details with the table name taken from
-                // the model
-                $result[ $modelName ]['migration'] = new Migration(
-                    $result[ $modelName ]['model']->tableName
+                $result[ $modelName ] = array(
+                    'model' => $model,
+                    'migration' => $migration
                 );
 
                 // Set it as the current model
