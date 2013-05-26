@@ -32,6 +32,15 @@ class ParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('images', $parsed['Image']['model']->tableName);
     }
 
+    public function testParsingOfMigrationInformation()
+    {
+        $parsed = $this->getParsedOutput($this->getSampleInput());
+
+        $this->assertEquals('users', $parsed['User']['migration']->tableName);
+        $this->assertEquals('posts', $parsed['Post']['migration']->tableName);
+        $this->assertEquals('images', $parsed['Image']['migration']->tableName);
+    }
+
     private function getParsedOutput($input)
     {
         $p = new Parser(new FieldParser(), new ModelDefinitionParser());

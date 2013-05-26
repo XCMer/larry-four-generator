@@ -45,6 +45,7 @@ class Parser
         $lines = explode("\n", $input);
 
         // Start parsing them line by line
+        $currentModel = null;
         foreach ($lines as $line)
         {
             // Ignore blank lines
@@ -64,9 +65,19 @@ class Parser
                 $parsed = $this->modelDefinitionParser->parse(trim($line));
 
                 // Fill up the model details
-                $result[ $parsed['modelName'] ] = array(
-                    'model' => new Model($parsed['modelName'], $parsed['tableName'])
+                $modelName = $parsed['modelName'];
+                $result[ $modelName ] = array(
+                    'model' => new Model($modelName, $parsed['tableName']),
                 );
+
+                // Fill up the migration details with the table name taken from
+                // the model
+                $result[ $modelName ]['migration'] = new Migration(
+                    $result[ $modelName ]['model']->tableName
+                );
+
+                // Set it as the current model
+                $currentModel = $modelName;
             }
 
             // Increment current line count
