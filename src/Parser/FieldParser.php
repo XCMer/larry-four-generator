@@ -182,6 +182,10 @@ class FieldParser
                 'default' => isset($parsedSegment[1]) ? $parsedSegment[1] : ""
             );
         }
+        else if ($command == 'nullable')
+        {
+            return array('nullable' => true);
+        }
 
 
         // Finally, return an empty array. We'll do some error handling later
