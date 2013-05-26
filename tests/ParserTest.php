@@ -6,7 +6,7 @@ use \LarryFour\Parser;
 
 class ParserTest extends PHPUnit_Framework_TestCase
 {
-    public function testParsingOfModelData()
+    public function testParsingOfModelNames()
     {
         $parsed = $this->getParsedOutput($this->getSampleInput());
 
@@ -14,10 +14,54 @@ class ParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(
             array(
                 'User',
-                'Post'
+                'Post',
+                'Image'
             ),
             array_keys($parsed['models'])
         );
+    }
+
+    public function testParsingOfModelTableNameOverrides()
+    {
+        $parsed = $this->getParsedOutput($this->getSampleInput());
+
+        $this->assertEquals('users', $parsed['models']['User']['tableName']);
+        $this->assertEquals('', $parsed['models']['Post']['tableName']);
+        $this->assertEquals('', $parsed['models']['Image']['tableName']);
+    }
+
+    public function testParsingOfRelationsBetweenModels()
+    {
+        $parsed = $this->getParsedOutput($this->getSampleInput());
+
+        $this->assertArrayHasKey('relations', $parsed);
+        $this->assertEquals(
+            array(
+                array(
+                    'fromModel' => 'User',
+                    'toModel' => 'Post',
+                    'relationType' => 'hm',
+                    'foreignKey' => '',
+                    'pivotTable' => ''
+                ),
+                array(
+                    'fromModel' => 'Post',
+                    'toModel' => 'User',
+                    'relationType' => 'bt',
+                    'foreignKey' => '',
+                    'pivotTable' => ''
+                ),
+                array(
+                    'fromModel' => 'Post',
+                    'toModel' => 'Image',
+                    'relationType' => 'mm',
+                    'foreignKey' => 'imageable',
+                    'pivotTable' => ''
+                )
+            ),
+            $parsed['relations']
+        );
+
     }
 
     private function getParsedOutput($input)
@@ -30,7 +74,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
     {
         return <<<EOF
 User users; hm Post;
-    id increments (optional)
+    id increments
     timestamps
     username string 50; default "hello world"; nullable;
     password string 64
@@ -42,6 +86,9 @@ Post; bt User; mm Image imageable;
     title string 250
     content text
     rating decimal 5 2
+
+Image
+    timestamps
 EOF;
     }
 }

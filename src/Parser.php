@@ -36,7 +36,8 @@ class Parser
         // Start parsing
         // Prepare an output data structure
         $result = array(
-            'models' => array()
+            'models' => array(),
+            'relations' => array()
         );
 
         // Replace Windows line endings with Linux newlines
@@ -61,8 +62,25 @@ class Parser
             else
             {
                 // Line is a model definition
+                // Parse it
                 $parsed = $this->modelDefinitionParser->parse(trim($line));
-                $result['models'][ $parsed['modelName'] ] = array();
+
+                // Fill up the model details
+                $result['models'][ $parsed['modelName'] ] = array(
+                    'tableName' => $parsed['tableName']
+                );
+
+                // Populate the relations
+                foreach ($parsed['relations'] as $relation)
+                {
+                    $result['relations'][] = array(
+                        'fromModel' => $parsed['modelName'],
+                        'toModel' => $relation['relatedModel'],
+                        'relationType' => $relation['relationType'],
+                        'foreignKey' => $relation['foreignKey'],
+                        'pivotTable' => $relation['pivotTable']
+                    );
+                }
             }
 
             // Increment current line count
