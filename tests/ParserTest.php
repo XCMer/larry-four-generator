@@ -19,49 +19,18 @@ class ParserTest extends PHPUnit_Framework_TestCase
             ),
             array_keys($parsed['models'])
         );
+        $this->assertInstanceOf('\LarryFour\Model', $parsed['models']['User']);
+        $this->assertInstanceOf('\LarryFour\Model', $parsed['models']['Post']);
+        $this->assertInstanceOf('\LarryFour\Model', $parsed['models']['Image']);
     }
 
     public function testParsingOfModelTableNameOverrides()
     {
         $parsed = $this->getParsedOutput($this->getSampleInput());
 
-        $this->assertEquals('users', $parsed['models']['User']['tableName']);
-        $this->assertEquals('', $parsed['models']['Post']['tableName']);
-        $this->assertEquals('', $parsed['models']['Image']['tableName']);
-    }
-
-    public function testParsingOfRelationsBetweenModels()
-    {
-        $parsed = $this->getParsedOutput($this->getSampleInput());
-
-        $this->assertArrayHasKey('relations', $parsed);
-        $this->assertEquals(
-            array(
-                array(
-                    'fromModel' => 'User',
-                    'toModel' => 'Post',
-                    'relationType' => 'hm',
-                    'foreignKey' => '',
-                    'pivotTable' => ''
-                ),
-                array(
-                    'fromModel' => 'Post',
-                    'toModel' => 'User',
-                    'relationType' => 'bt',
-                    'foreignKey' => '',
-                    'pivotTable' => ''
-                ),
-                array(
-                    'fromModel' => 'Post',
-                    'toModel' => 'Image',
-                    'relationType' => 'mm',
-                    'foreignKey' => 'imageable',
-                    'pivotTable' => ''
-                )
-            ),
-            $parsed['relations']
-        );
-
+        $this->assertEquals('users', $parsed['models']['User']->tableName);
+        $this->assertEquals('posts', $parsed['models']['Post']->tableName);
+        $this->assertEquals('images', $parsed['models']['Image']->tableName);
     }
 
     private function getParsedOutput($input)

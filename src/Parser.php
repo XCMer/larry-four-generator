@@ -24,7 +24,8 @@ class Parser
 
 
     /**
-     * Parses the contents of an actual input file for Larry
+     * Parses the contents of an actual input file for Larry and returns an array
+     * of Models and Migrations that can then be used to generate those files
      * @param  string $input The input text
      * @return [type]        [description]
      */
@@ -37,7 +38,6 @@ class Parser
         // Prepare an output data structure
         $result = array(
             'models' => array(),
-            'relations' => array()
         );
 
         // Replace Windows line endings with Linux newlines
@@ -66,21 +66,8 @@ class Parser
                 $parsed = $this->modelDefinitionParser->parse(trim($line));
 
                 // Fill up the model details
-                $result['models'][ $parsed['modelName'] ] = array(
-                    'tableName' => $parsed['tableName']
-                );
-
-                // Populate the relations
-                foreach ($parsed['relations'] as $relation)
-                {
-                    $result['relations'][] = array(
-                        'fromModel' => $parsed['modelName'],
-                        'toModel' => $relation['relatedModel'],
-                        'relationType' => $relation['relationType'],
-                        'foreignKey' => $relation['foreignKey'],
-                        'pivotTable' => $relation['pivotTable']
-                    );
-                }
+                $result['models'][ $parsed['modelName'] ]
+                    = new Model($parsed['modelName'], $parsed['tableName']);
             }
 
             // Increment current line count
