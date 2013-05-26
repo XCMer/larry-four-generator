@@ -1,7 +1,6 @@
 <?php
 
 use \LarryFour\Parser\FieldParser;
-include SRC_ROOT . 'Parser/FieldParser.php';
 
 class FieldParserTest extends PHPUnit_Framework_TestCase
 {
