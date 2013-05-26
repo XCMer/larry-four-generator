@@ -68,7 +68,11 @@ class Parser
                 {
                     $result[$currentModel]['model']->timestamps = true;
                     $result[$currentModel]['migration']->timestamps = true;
+                    continue;
                 }
+
+                // For other fields, add them to the current migration
+                $result[$currentModel]['migration']->addColumn($parsed);
             }
             else
             {

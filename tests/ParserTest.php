@@ -54,6 +54,43 @@ class ParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(true, $parsed['Image']['model']->timestamps);
     }
 
+    public function testAdditionOfFieldsToMigration()
+    {
+        $parsed = $this->getParsedOutput($this->getSampleInput());
+
+        $user = $parsed['User']['migration'];
+        $post = $parsed['Post']['migration'];
+        $image = $parsed['Image']['migration'];
+
+        // Check for all fields in the user table
+        $this->assertEquals('id', $user->primaryKey);
+
+        $this->assertTrue($user->columnExists('username'));
+        $this->assertEquals('string', $user->getColumnType('username'));
+        $this->assertEquals(array(50), $user->getColumnParameters('username'));
+        $this->assertEquals("hello world", $user->getColumnDefault('username'));
+        $this->assertTrue($user->isColumnNullable('username'));
+
+        $this->assertTrue($user->columnExists('password'));
+        $this->assertEquals('string', $user->getColumnType('password'));
+        $this->assertEquals(array(64), $user->getColumnParameters('password'));
+        $this->assertEquals("", $user->getColumnDefault('password'));
+        $this->assertFalse($user->isColumnNullable('password'));
+
+        $this->assertTrue($user->columnExists('email'));
+        $this->assertEquals('string', $user->getColumnType('email'));
+        $this->assertEquals(array(250), $user->getColumnParameters('email'));
+        $this->assertEquals("", $user->getColumnDefault('email'));
+        $this->assertFalse($user->isColumnNullable('email'));
+
+        $this->assertTrue($user->columnExists('type'));
+        $this->assertEquals('enum', $user->getColumnType('type'));
+        $this->assertEquals(array('admin', 'moderator', 'user'), $user->getColumnParameters('type'));
+        $this->assertEquals("", $user->getColumnDefault('type'));
+        $this->assertFalse($user->isColumnNullable('type'));
+
+    }
+
     private function getParsedOutput($input)
     {
         $p = new Parser(new FieldParser(), new ModelDefinitionParser());
