@@ -10,27 +10,26 @@ class ParserTest extends PHPUnit_Framework_TestCase
     {
         $parsed = $this->getParsedOutput($this->getSampleInput());
 
-        $this->assertArrayHasKey('models', $parsed);
         $this->assertEquals(
             array(
                 'User',
                 'Post',
                 'Image'
             ),
-            array_keys($parsed['models'])
+            array_keys($parsed)
         );
-        $this->assertInstanceOf('\LarryFour\Model', $parsed['models']['User']);
-        $this->assertInstanceOf('\LarryFour\Model', $parsed['models']['Post']);
-        $this->assertInstanceOf('\LarryFour\Model', $parsed['models']['Image']);
+        $this->assertInstanceOf('\LarryFour\Model', $parsed['User']['model']);
+        $this->assertInstanceOf('\LarryFour\Model', $parsed['Post']['model']);
+        $this->assertInstanceOf('\LarryFour\Model', $parsed['Image']['model']);
     }
 
     public function testParsingOfModelTableNameOverrides()
     {
         $parsed = $this->getParsedOutput($this->getSampleInput());
 
-        $this->assertEquals('users', $parsed['models']['User']->tableName);
-        $this->assertEquals('posts', $parsed['models']['Post']->tableName);
-        $this->assertEquals('images', $parsed['models']['Image']->tableName);
+        $this->assertEquals('users', $parsed['User']['model']->tableName);
+        $this->assertEquals('posts', $parsed['Post']['model']->tableName);
+        $this->assertEquals('images', $parsed['Image']['model']->tableName);
     }
 
     private function getParsedOutput($input)

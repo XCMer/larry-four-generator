@@ -36,9 +36,7 @@ class Parser
 
         // Start parsing
         // Prepare an output data structure
-        $result = array(
-            'models' => array(),
-        );
+        $result = array();
 
         // Replace Windows line endings with Linux newlines
         $input = str_replace("\r\n", "\n", $input);
@@ -66,8 +64,9 @@ class Parser
                 $parsed = $this->modelDefinitionParser->parse(trim($line));
 
                 // Fill up the model details
-                $result['models'][ $parsed['modelName'] ]
-                    = new Model($parsed['modelName'], $parsed['tableName']);
+                $result[ $parsed['modelName'] ] = array(
+                    'model' => new Model($parsed['modelName'], $parsed['tableName'])
+                );
             }
 
             // Increment current line count
