@@ -102,6 +102,38 @@ class FieldParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(true, $parsed['unsigned']);
     }
 
+    public function testFieldPrimary()
+    {
+        $parsed = $this->getParsedResults('username string 50; default "hello; world"; primary;');
+
+        $this->assertArrayHasKey('primary', $parsed);
+        $this->assertEquals(true, $parsed['primary']);
+    }
+
+    public function testFieldUnique()
+    {
+        $parsed = $this->getParsedResults('username string 50; default "hello; world"; unique;');
+
+        $this->assertArrayHasKey('unique', $parsed);
+        $this->assertEquals(true, $parsed['unique']);
+    }
+
+    public function testFieldFulltext()
+    {
+        $parsed = $this->getParsedResults('username string 50; default "hello; world"; fulltext;');
+
+        $this->assertArrayHasKey('fulltext', $parsed);
+        $this->assertEquals(true, $parsed['fulltext']);
+    }
+
+    public function testFieldNormalIndex()
+    {
+        $parsed = $this->getParsedResults('username string 50; default "hello; world"; index;');
+
+        $this->assertArrayHasKey('index', $parsed);
+        $this->assertEquals(true, $parsed['index']);
+    }
+
     private function getParsedResults($input)
     {
         $f = new FieldParser();

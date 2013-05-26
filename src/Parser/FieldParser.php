@@ -190,6 +190,22 @@ class FieldParser
         {
             return array('unsigned' => true);
         }
+        else if ($command == 'primary')
+        {
+            return array('primary' => true);
+        }
+        else if ($command == 'fulltext')
+        {
+            return array('fulltext' => true);
+        }
+        else if ($command == 'unique')
+        {
+            return array('unique' => true);
+        }
+        else if ($command == 'index')
+        {
+            return array('index' => true);
+        }
 
 
         // Finally, return an empty array. We'll do some error handling later
