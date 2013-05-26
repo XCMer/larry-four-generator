@@ -50,4 +50,86 @@ class FieldParser
             'parameters' => $parameters
         );
     }
+
+
+    /**
+     * Returns an array of commands found in a line that are separated
+     * by a semicolon. Though the first segment is always about the field,
+     * the subsequent segments are field modifiers that specify things like
+     * default value, nullable, and other field properties.
+     *
+     * @param string $line The complete field line
+     *
+     * @return array An array of all segments as strings
+     */
+    public function getLineSegments($line)
+    {
+        // We have to take care of semicolons appearing inside quotes
+        // and stuffs like that
+
+        // Add imaginary semicolons at the beginning and the end of the
+        // string for reference purpose
+        $line = ";{$line};";
+
+        // Some C style parsing to the rescue
+        $insideQuotes = false;
+        $semicolonPositions = array();
+
+        $length = strlen($line);
+        for ($i=0; $i<$length; $i++)
+        {
+            // If we have either of the quote character, set insideQuotes
+            // to that quote character. We need to keep track of which
+            // character started to quote so that the same character
+            // dequotes it as well
+            if (in_array($line[$i], array('"', "'")))
+            {
+                // If a quote is open and it is equal to the current
+                // quote character, then dequote
+                if ($insideQuotes and ($insideQuotes == $line[$i]))
+                {
+                    $insideQuotes = false;
+                }
+                // Else if it's a quote and we are not inside a quote yet
+                else
+                {
+                    $insideQuotes = $line[$i];
+                }
+
+                // In both cases, go to next character
+                continue;
+            }
+
+            // If we have a semicolon, push its position only if we are not
+            // inside a quote
+            if (!$insideQuotes and ($line[$i] == ';'))
+            {
+                $semicolonPositions[] = $i;
+            }
+        }
+
+        // Initialize a list of segments
+        $segments = array();
+
+        // Now that we have the position of all semicolons that are actual
+        // separators, we'll explode the string manually at those points
+        $semicolonPositionsCount = count($semicolonPositions);
+        for ($i=1; $i<$semicolonPositionsCount; $i++)
+        {
+            // The start of the substring excluding the semicolon
+            $s = $semicolonPositions[$i - 1] + 1;
+
+            // the length of the substring ignoring the semicolon
+            $l = $semicolonPositions[$i] - $s;
+
+            // Get the substring and trim it, and add it to the list
+            // of segments
+            $subs = trim( substr($line, $s, $l) );
+
+            // To filter out blank substrings
+            if ($subs) $segments[] = $subs;
+        }
+
+        return $segments;
+    }
 }

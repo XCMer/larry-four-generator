@@ -52,6 +52,32 @@ class FieldParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array('admin', 'moderator', 'user', 'hello '), $parsed['parameters']);
     }
 
+    public function testGetLineSegments()
+    {
+        $f = new FieldParser();
+        $output = $f->getLineSegments('username string 50; default "hello world"; nullable;');
+        $expected = array(
+            'username string 50',
+            'default "hello world"',
+            'nullable'
+        );
+
+        $this->assertEquals($expected, $output);
+    }
+
+    public function testGetLineSegmentsWithSemicolonInData()
+    {
+        $f = new FieldParser();
+        $output = $f->getLineSegments('username string 50; default "hello; world"; nullable;');
+        $expected = array(
+            'username string 50',
+            'default "hello; world"',
+            'nullable'
+        );
+
+        $this->assertEquals($expected, $output);
+    }
+
     private function getParsedResults($input)
     {
         $f = new FieldParser();
