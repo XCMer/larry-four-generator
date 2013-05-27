@@ -38,6 +38,9 @@ class Parser
         // Prepare an output data structure
         $result = array();
 
+        // For storing relations as we get them
+        $relations = array();
+
         // Replace Windows line endings with Linux newlines
         $input = str_replace("\r\n", "\n", $input);
 
@@ -90,12 +93,69 @@ class Parser
                     'migration' => $migration
                 );
 
+                // Detect and add in relations for later use
+                foreach ($parsed['relations'] as $rel)
+                {
+                    $relations[] = array_merge(
+                        array('fromModel' => $modelName),
+                        $rel
+                    );
+                }
+
                 // Set it as the current model
                 $currentModel = $modelName;
             }
 
             // Increment current line count
             $currentLine++;
+        }
+
+        // Process all the relations and add in the respective columns
+        // to migration
+        foreach ($relations as $rel)
+        {
+            // If the relations are of type hm, ho, then the column appears
+            // in the related table
+            if (in_array($rel['relationType'], array('hm', 'ho')))
+            {
+                // Use the overrided foreign key if present, or lowercase the
+                // from model and append "_id"
+                $foreignKey = $rel['foreignKey']
+                    ? $rel['foreignKey']
+                    : strtolower($rel['fromModel']) . '_id';
+
+                // Add in the key
+                $result[ $rel['relatedModel'] ]
+                    ['migration']
+                    ->addColumn(array(
+                    'name' => $foreignKey,
+                    'type' => 'integer',
+                    'parameters' => array(),
+                    'unsigned' => true
+                ));
+            }
+            // Else if type of the relation is polymorphic
+            if (in_array($rel['relationType'], array('mm', 'mo')))
+            {
+                // Add in two columns to the related model
+                // A foreign key is required to be specified in this case
+                $result[ $rel['relatedModel'] ]
+                    ['migration']
+                    ->addColumn(array(
+                    'name' => $rel['foreignKey'] . '_id',
+                    'type' => 'integer',
+                    'parameters' => array(),
+                    'unsigned' => true
+                ));
+
+                $result[ $rel['relatedModel'] ]
+                    ['migration']
+                    ->addColumn(array(
+                    'name' => $rel['foreignKey'] . '_type',
+                    'type' => 'string',
+                    'parameters' => array()
+                ));
+            }
         }
 
         // Return the result

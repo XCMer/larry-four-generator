@@ -91,6 +91,20 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     }
 
+    public function testAdditionOfRelationFieldsToMigration()
+    {
+        $parsed = $this->getParsedOutput($this->getSampleInput());
+
+        $user = $parsed['User']['migration'];
+        $post = $parsed['Post']['migration'];
+        $image = $parsed['Image']['migration'];
+
+        // Test presence of related fields
+        $this->assertTrue($post->columnExists('user_id'));
+        $this->assertTrue($image->columnExists('imageable_id'));
+        $this->assertTrue($image->columnExists('imageable_type'));
+    }
+
     private function getParsedOutput($input)
     {
         $p = new Parser(new FieldParser(), new ModelDefinitionParser());
