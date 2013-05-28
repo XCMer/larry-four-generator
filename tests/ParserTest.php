@@ -23,7 +23,8 @@ class ParserTest extends PHPUnit_Framework_TestCase
             array(
                 'User',
                 'Post',
-                'Image'
+                'Image',
+                'Role'
             ),
             array_keys($models)
         );
@@ -143,7 +144,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
     private function getSampleInput()
     {
         return <<<EOF
-User users; hm Post;
+User users; hm Post; btm Role;
     id increments
     username string 50; default "hello world"; nullable;
     password string 64
@@ -157,6 +158,9 @@ Post; bt User; mm Image imageable;
     rating decimal 5 2
 
 Image
+    timestamps
+
+Role
     timestamps
 EOF;
     }
