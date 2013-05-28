@@ -8,9 +8,15 @@ use \LarryFour\MigrationList;
 
 class ParserTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * Stores the parsed result of the sample input, since all the function parse
+     * the same input
+     */
+    private $parsed = null;
+
     public function testParsingOfModelNames()
     {
-        $parsed = $this->getParsedOutput($this->getSampleInput());
+        $parsed = $this->getSampleParsedObject();
 
         $this->assertEquals(
             array(
@@ -27,7 +33,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testParsingOfModelTableNameOverrides()
     {
-        $parsed = $this->getParsedOutput($this->getSampleInput());
+        $parsed = $this->getSampleParsedObject();
 
         $this->assertEquals('users', $parsed['User']['model']->tableName);
         $this->assertEquals('posts', $parsed['Post']['model']->tableName);
@@ -36,7 +42,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testParsingOfMigrationInformation()
     {
-        $parsed = $this->getParsedOutput($this->getSampleInput());
+        $parsed = $this->getSampleParsedObject();
 
         $this->assertEquals('users', $parsed['User']['migration']->tableName);
         $this->assertEquals('posts', $parsed['Post']['migration']->tableName);
@@ -45,7 +51,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testTimestampsParameter()
     {
-        $parsed = $this->getParsedOutput($this->getSampleInput());
+        $parsed = $this->getSampleParsedObject();
 
         $this->assertEquals(false, $parsed['User']['migration']->timestamps);
         $this->assertEquals(true, $parsed['Post']['migration']->timestamps);
@@ -58,7 +64,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testAdditionOfFieldsToMigration()
     {
-        $parsed = $this->getParsedOutput($this->getSampleInput());
+        $parsed = $this->getSampleParsedObject();
 
         $user = $parsed['User']['migration'];
         $post = $parsed['Post']['migration'];
@@ -95,7 +101,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testAdditionOfRelationFieldsToMigration()
     {
-        $parsed = $this->getParsedOutput($this->getSampleInput());
+        $parsed = $this->getSampleParsedObject();
 
         $user = $parsed['User']['migration'];
         $post = $parsed['Post']['migration'];
@@ -105,6 +111,16 @@ class ParserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($post->columnExists('user_id'));
         $this->assertTrue($image->columnExists('imageable_id'));
         $this->assertTrue($image->columnExists('imageable_type'));
+    }
+
+    private function getSampleParsedObject()
+    {
+        if (is_null($this->parsed))
+        {
+            $this->parsed = $this->getParsedOutput($this->getSampleInput());
+        }
+
+        return $this->parsed;
     }
 
     private function getParsedOutput($input)
