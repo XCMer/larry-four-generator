@@ -17,6 +17,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
     public function testParsingOfModelNames()
     {
         $parsed = $this->getSampleParsedObject();
+        $models = $parsed['modelList']->all();
 
         $this->assertEquals(
             array(
@@ -24,51 +25,56 @@ class ParserTest extends PHPUnit_Framework_TestCase
                 'Post',
                 'Image'
             ),
-            array_keys($parsed)
+            array_keys($models)
         );
-        $this->assertInstanceOf('\LarryFour\Model', $parsed['User']['model']);
-        $this->assertInstanceOf('\LarryFour\Model', $parsed['Post']['model']);
-        $this->assertInstanceOf('\LarryFour\Model', $parsed['Image']['model']);
+        $this->assertInstanceOf('\LarryFour\Model', $models['User']);
+        $this->assertInstanceOf('\LarryFour\Model', $models['Post']);
+        $this->assertInstanceOf('\LarryFour\Model', $models['Image']);
     }
 
     public function testParsingOfModelTableNameOverrides()
     {
         $parsed = $this->getSampleParsedObject();
+        $models = $parsed['modelList']->all();
 
-        $this->assertEquals('users', $parsed['User']['model']->tableName);
-        $this->assertEquals('posts', $parsed['Post']['model']->tableName);
-        $this->assertEquals('images', $parsed['Image']['model']->tableName);
+        $this->assertEquals('users', $models['User']->tableName);
+        $this->assertEquals('posts', $models['Post']->tableName);
+        $this->assertEquals('images', $models['Image']->tableName);
     }
 
     public function testParsingOfMigrationInformation()
     {
         $parsed = $this->getSampleParsedObject();
+        $migrations = $parsed['migrationList']->all();
 
-        $this->assertEquals('users', $parsed['User']['migration']->tableName);
-        $this->assertEquals('posts', $parsed['Post']['migration']->tableName);
-        $this->assertEquals('images', $parsed['Image']['migration']->tableName);
+        $this->assertEquals('users', $migrations['User']->tableName);
+        $this->assertEquals('posts', $migrations['Post']->tableName);
+        $this->assertEquals('images', $migrations['Image']->tableName);
     }
 
     public function testTimestampsParameter()
     {
         $parsed = $this->getSampleParsedObject();
+        $models = $parsed['modelList']->all();
+        $migrations = $parsed['migrationList']->all();
 
-        $this->assertEquals(false, $parsed['User']['migration']->timestamps);
-        $this->assertEquals(true, $parsed['Post']['migration']->timestamps);
-        $this->assertEquals(true, $parsed['Image']['migration']->timestamps);
+        $this->assertEquals(false, $models['User']->timestamps);
+        $this->assertEquals(true, $models['Post']->timestamps);
+        $this->assertEquals(true, $models['Image']->timestamps);
 
-        $this->assertEquals(false, $parsed['User']['model']->timestamps);
-        $this->assertEquals(true, $parsed['Post']['model']->timestamps);
-        $this->assertEquals(true, $parsed['Image']['model']->timestamps);
+        $this->assertEquals(false, $migrations['User']->timestamps);
+        $this->assertEquals(true, $migrations['Post']->timestamps);
+        $this->assertEquals(true, $migrations['Image']->timestamps);
     }
 
     public function testAdditionOfFieldsToMigration()
     {
         $parsed = $this->getSampleParsedObject();
+        $migrations = $parsed['migrationList']->all();
 
-        $user = $parsed['User']['migration'];
-        $post = $parsed['Post']['migration'];
-        $image = $parsed['Image']['migration'];
+        $user = $migrations['User'];
+        $post = $migrations['Post'];
+        $image = $migrations['Image'];
 
         // Check for all fields in the user table
         $this->assertEquals('id', $user->primaryKey);
@@ -102,10 +108,11 @@ class ParserTest extends PHPUnit_Framework_TestCase
     public function testAdditionOfRelationFieldsToMigration()
     {
         $parsed = $this->getSampleParsedObject();
+        $migrations = $parsed['migrationList']->all();
 
-        $user = $parsed['User']['migration'];
-        $post = $parsed['Post']['migration'];
-        $image = $parsed['Image']['migration'];
+        $user = $migrations['User'];
+        $post = $migrations['Post'];
+        $image = $migrations['Image'];
 
         // Test presence of related fields
         $this->assertTrue($post->columnExists('user_id'));

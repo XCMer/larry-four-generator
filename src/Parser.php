@@ -49,7 +49,7 @@ class Parser
      * Parses the contents of an actual input file for Larry and returns an array
      * of Models and Migrations that can then be used to generate those files
      * @param  string $input The input text
-     * @return [type]        [description]
+     * @return array         An array of modelList and migrationList that has been generated
      */
     public function parse($input)
     {
@@ -57,9 +57,6 @@ class Parser
         $currentLine = 0;
 
         // Start parsing
-        // Prepare an output data structure
-        $result = array();
-
         // Reset the relations
         $this->relations = array();
 
@@ -103,24 +100,11 @@ class Parser
         // to migration
         $this->processRelations();
 
-        // Collate the results to replicate the earlier data structure
-        // This will have to be refactored later
-        $allModels = $this->modelList->all();
-        $allMigrations = $this->migrationList->all();
-
-        foreach ($allModels as $name => $value)
-        {
-            $result[$name]['model'] = $value;
-        }
-
-        foreach ($allMigrations as $name => $value)
-        {
-            $result[$name]['migration'] = $value;
-        }
-
-
-        // Return the result
-        return $result;
+        // Return result
+        return array(
+            'modelList' => $this->modelList,
+            'migrationList' => $this->migrationList
+        );
     }
 
 
