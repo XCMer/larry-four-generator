@@ -168,6 +168,8 @@ class Parser
      * Add in relational fields to all the migrations and models by processing the relations
      * that were find during parsing
      * @return void
+     *
+     * TODO: Just deals with migration for now, we need to add in functions to the models too
      */
     public function processRelations()
     {
@@ -184,8 +186,35 @@ class Parser
                     $rel['foreignKey']
                 );
             }
+
+            // Else if relation type is btm
+            else if ($rel['relationType'] == 'btm')
+            {
+                // Determine the name of the pivot table
+                $pivotTableName =
+                    ( strcmp($rel['fromModel'], $rel['relatedModel']) < 0 )
+                    ? strtolower($rel['fromModel'] . '_' . $rel['relatedModel'])
+                    : strtolower($rel['relatedModel'] . '_' . $rel['fromModel']);
+
+                // Add in the new table
+                $this->migrationList->create($pivotTableName, $pivotTableName);
+
+                // Add in the columns
+                $this->migrationList->addForeignKey(
+                    $pivotTableName,
+                    null,
+                    strtolower($rel['fromModel'] . '_id')
+                );
+
+                $this->migrationList->addForeignKey(
+                    $pivotTableName,
+                    null,
+                    strtolower($rel['relatedModel'] . '_id')
+                );
+            }
+
             // Else if type of the relation is polymorphic
-            if (in_array($rel['relationType'], array('mm', 'mo')))
+            else if (in_array($rel['relationType'], array('mm', 'mo')))
             {
                 // Add in two columns to the related model
                 // A foreign key is required to be specified in this case

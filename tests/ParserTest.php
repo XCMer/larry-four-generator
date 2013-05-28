@@ -121,6 +121,20 @@ class ParserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($image->columnExists('imageable_type'));
     }
 
+    public function testBtmIntermediaTableInMigration()
+    {
+        $parsed = $this->getSampleParsedObject();
+        $migrations = $parsed['migrationList']->all();
+
+        // The "model name" for the pivot table is simply the table name, with
+        // the entire name lowercase (as opposed to a model)
+        $role_user = $migrations['role_user'];
+
+        // Test presence of fields
+        $this->assertTrue($role_user->columnExists('role_id'));
+        $this->assertTrue($role_user->columnExists('user_id'));
+    }
+
     private function getSampleParsedObject()
     {
         if (is_null($this->parsed))
