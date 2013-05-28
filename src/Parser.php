@@ -60,6 +60,9 @@ class Parser
         // Prepare an output data structure
         $result = array();
 
+        // Reset the relations
+        $this->relations = array();
+
         // Replace Windows line endings with Linux newlines
         $input = str_replace("\r\n", "\n", $input);
 
