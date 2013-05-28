@@ -26,6 +26,12 @@ class Parser
      */
     private $migrationList;
 
+    /**
+     * An array holding relations between models and other meta data about them
+     * @var array
+     */
+    private $relations;
+
 
     public function __construct(\LarryFour\Parser\FieldParser $fieldParser,
                     \LarryFour\Parser\ModelDefinitionParser $modelDefinitionParser,
@@ -54,9 +60,6 @@ class Parser
         // Prepare an output data structure
         $result = array();
 
-        // For storing relations as we get them
-        $relations = array();
-
         // Replace Windows line endings with Linux newlines
         $input = str_replace("\r\n", "\n", $input);
 
@@ -80,43 +83,13 @@ class Parser
                 if (!$currentModel) die('Field definitions appearing before a model is defined.');
 
                 // Else, let's start working on the field
-                $parsed = $this->fieldParser->parse(trim($line));
-
-                // Check if the field is timestamps
-                if ($parsed['type'] == 'timestamps')
-                {
-                    $this->modelList->setTimestamps($currentModel);
-                    $this->migrationList->setTimestamps($currentModel);
-                    continue;
-                }
-
-                // For other fields, add them to the current migration
-                $this->migrationList->addColumn($currentModel, $parsed);
+                $this->parseFieldDefinitionLine($line, $currentModel);
             }
             else
             {
                 // Line is a model definition
-                // Parse it
-                $parsed = $this->modelDefinitionParser->parse(trim($line));
-
-                // Create a new model and migration
-                $modelName = $parsed['modelName'];
-                $tableName = $parsed['tableName'];
-
-                $model = $this->modelList->create($modelName, $tableName);
-                $this->migrationList->create($modelName, $model->tableName);
-
-                // Detect and add in relations for later use
-                foreach ($parsed['relations'] as $rel)
-                {
-                    $relations[] = array_merge(
-                        array('fromModel' => $modelName),
-                        $rel
-                    );
-                }
-
-                // Set it as the current model
-                $currentModel = $modelName;
+                // Parse it and set the current model
+                $currentModel = $this->parseModelDefinitionLine($line);
             }
 
             // Increment current line count
@@ -125,7 +98,93 @@ class Parser
 
         // Process all the relations and add in the respective columns
         // to migration
-        foreach ($relations as $rel)
+        $this->processRelations();
+
+        // Collate the results to replicate the earlier data structure
+        // This will have to be refactored later
+        $allModels = $this->modelList->all();
+        $allMigrations = $this->migrationList->all();
+
+        foreach ($allModels as $name => $value)
+        {
+            $result[$name]['model'] = $value;
+        }
+
+        foreach ($allMigrations as $name => $value)
+        {
+            $result[$name]['migration'] = $value;
+        }
+
+
+        // Return the result
+        return $result;
+    }
+
+
+    /**
+     * Parse the model definition line and append the results to the appropriate
+     * data structure
+     * @param  string $line The input line to be parsed
+     * @return string       The name of the model that was parsed
+     */
+    public function parseModelDefinitionLine($line)
+    {
+        // Parse the model definition
+        $parsed = $this->modelDefinitionParser->parse(trim($line));
+
+        // Create a new model and migration
+        $modelName = $parsed['modelName'];
+        $tableName = $parsed['tableName'];
+
+        $model = $this->modelList->create($modelName, $tableName);
+        $this->migrationList->create($modelName, $model->tableName);
+
+        // Detect and add in relations for later use
+        foreach ($parsed['relations'] as $rel)
+        {
+            $this->relations[] = array_merge(
+                array('fromModel' => $modelName),
+                $rel
+            );
+        }
+
+        // Return the model name
+        return $modelName;
+    }
+
+
+    /**
+     * Parse the field definition line and build the necessary data structures
+     * @param  string $line  The field line to be parsed
+     * @param  string $model The name of the model to which the field belongs
+     * @return void
+     */
+    public function parseFieldDefinitionLine($line, $model)
+    {
+        // Parse the field definition
+        $parsed = $this->fieldParser->parse(trim($line));
+
+        // Check if the field is timestamps
+        if ($parsed['type'] == 'timestamps')
+        {
+            $this->modelList->setTimestamps($model);
+            $this->migrationList->setTimestamps($model);
+            return;
+        }
+
+        // For other fields, add them to the current migration
+        $this->migrationList->addColumn($model, $parsed);
+    }
+
+
+    /**
+     * Add in relational fields to all the migrations and models by processing the relations
+     * that were find during parsing
+     * @return void
+     */
+    public function processRelations()
+    {
+        foreach ($this->relations as $rel)
         {
             // If the relations are of type hm, ho, then the column appears
             // in the related table
@@ -157,25 +216,5 @@ class Parser
                 );
             }
         }
-
-
-        // Collate the results to replicate the earlier data structure
-        // This will have to be refactored later
-        $allModels = $this->modelList->all();
-        $allMigrations = $this->migrationList->all();
-
-        foreach ($allModels as $name => $value)
-        {
-            $result[$name]['model'] = $value;
-        }
-
-        foreach ($allMigrations as $name => $value)
-        {
-            $result[$name]['migration'] = $value;
-        }
-
-
-        // Return the result
-        return $result;
     }
 }
