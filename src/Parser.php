@@ -14,12 +14,28 @@ class Parser
      */
     private $modelDefinitionParser;
 
+    /**
+     * Instance of the model list object
+     * @var \LarryFour\ModelList
+     */
+    private $modelList;
+
+    /**
+     * Instance of the migration list object
+     * @var \LarryFour\MigrationList
+     */
+    private $migrationList;
+
 
     public function __construct(\LarryFour\Parser\FieldParser $fieldParser,
-                    \LarryFour\Parser\ModelDefinitionParser $modelDefinitionParser)
+                    \LarryFour\Parser\ModelDefinitionParser $modelDefinitionParser,
+                    \LarryFour\ModelList $modelList,
+                    \LarryFour\MigrationList $migrationList)
     {
         $this->fieldParser = $fieldParser;
         $this->modelDefinitionParser = $modelDefinitionParser;
+        $this->modelList = $modelList;
+        $this->migrationList = $migrationList;
     }
 
 
@@ -69,13 +85,13 @@ class Parser
                 // Check if the field is timestamps
                 if ($parsed['type'] == 'timestamps')
                 {
-                    $result[$currentModel]['model']->timestamps = true;
-                    $result[$currentModel]['migration']->timestamps = true;
+                    $this->modelList->setTimestamps($currentModel);
+                    $this->migrationList->setTimestamps($currentModel);
                     continue;
                 }
 
                 // For other fields, add them to the current migration
-                $result[$currentModel]['migration']->addColumn($parsed);
+                $this->migrationList->addColumn($currentModel, $parsed);
             }
             else
             {
@@ -85,13 +101,10 @@ class Parser
 
                 // Create a new model and migration
                 $modelName = $parsed['modelName'];
-                $model = new Model($modelName, $parsed['tableName']);
-                $migration = new Migration($model->tableName);
+                $tableName = $parsed['tableName'];
 
-                $result[ $modelName ] = array(
-                    'model' => $model,
-                    'migration' => $migration
-                );
+                $model = $this->modelList->create($modelName, $tableName);
+                $this->migrationList->create($modelName, $model->tableName);
 
                 // Detect and add in relations for later use
                 foreach ($parsed['relations'] as $rel)
@@ -118,45 +131,49 @@ class Parser
             // in the related table
             if (in_array($rel['relationType'], array('hm', 'ho')))
             {
-                // Use the overrided foreign key if present, or lowercase the
-                // from model and append "_id"
-                $foreignKey = $rel['foreignKey']
-                    ? $rel['foreignKey']
-                    : strtolower($rel['fromModel']) . '_id';
-
                 // Add in the key
-                $result[ $rel['relatedModel'] ]
-                    ['migration']
-                    ->addColumn(array(
-                    'name' => $foreignKey,
-                    'type' => 'integer',
-                    'parameters' => array(),
-                    'unsigned' => true
-                ));
+                $this->migrationList->addForeignKey(
+                    $rel['relatedModel'],
+                    $rel['fromModel'],
+                    $rel['foreignKey']
+                );
             }
             // Else if type of the relation is polymorphic
             if (in_array($rel['relationType'], array('mm', 'mo')))
             {
                 // Add in two columns to the related model
                 // A foreign key is required to be specified in this case
-                $result[ $rel['relatedModel'] ]
-                    ['migration']
-                    ->addColumn(array(
-                    'name' => $rel['foreignKey'] . '_id',
-                    'type' => 'integer',
-                    'parameters' => array(),
-                    'unsigned' => true
-                ));
+                $this->migrationList->addForeignKey(
+                    $rel['relatedModel'],
+                    $rel['fromModel'],
+                    $rel['foreignKey'] . '_id'
+                );
 
-                $result[ $rel['relatedModel'] ]
-                    ['migration']
-                    ->addColumn(array(
-                    'name' => $rel['foreignKey'] . '_type',
-                    'type' => 'string',
-                    'parameters' => array()
-                ));
+                $this->migrationList->addForeignKey(
+                    $rel['relatedModel'],
+                    $rel['fromModel'],
+                    $rel['foreignKey'] . '_type',
+                    'string'
+                );
             }
         }
+
+
+        // Collate the results to replicate the earlier data structure
+        // This will have to be refactored later
+        $allModels = $this->modelList->all();
+        $allMigrations = $this->migrationList->all();
+
+        foreach ($allModels as $name => $value)
+        {
+            $result[$name]['model'] = $value;
+        }
+
+        foreach ($allMigrations as $name => $value)
+        {
+            $result[$name]['migration'] = $value;
+        }
+
 
         // Return the result
         return $result;

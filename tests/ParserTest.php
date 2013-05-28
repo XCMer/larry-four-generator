@@ -3,6 +3,8 @@
 use \LarryFour\Parser\FieldParser;
 use \LarryFour\Parser\ModelDefinitionParser;
 use \LarryFour\Parser;
+use \LarryFour\ModelList;
+use \LarryFour\MigrationList;
 
 class ParserTest extends PHPUnit_Framework_TestCase
 {
@@ -107,7 +109,11 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     private function getParsedOutput($input)
     {
-        $p = new Parser(new FieldParser(), new ModelDefinitionParser());
+        $p = new Parser(
+            new FieldParser(),
+            new ModelDefinitionParser(),
+            new ModelList(),
+            new MigrationList());
         return $p->parse($input);
     }
 
