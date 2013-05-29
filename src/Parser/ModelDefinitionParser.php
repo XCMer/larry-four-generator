@@ -1,5 +1,7 @@
 <?php namespace LarryFour\Parser;
 
+use \LarryFour\Exception\ParseError;
+
 class ModelDefinitionParser
 {
     public function parse($line)
@@ -52,6 +54,13 @@ class ModelDefinitionParser
     private function parseModelData($segment)
     {
         $data = explode(" ", trim($segment));
+
+        // Check if we have a model name
+        if (!$data)
+        {
+            throw new ParseError("Model name cannot be blank");
+        }
+
         $modelName = $data[0];
         $tableName = isset($data[1]) ? $data[1] : '';
 
@@ -72,14 +81,24 @@ class ModelDefinitionParser
     {
         $data = explode(" ", $segment);
 
-        // If there is no data, don't do anything and just return an array
-        if (empty($data) or (count($data) < 2)) return array();
+        // If there is no data, throw an error
+        if (empty($data) or (count($data) < 2))
+        {
+            throw new ParseError("Insufficient parameters for relation: " . $segment);
+        }
 
         // The first part is the relation type while the second part is the
-        // related model.
+        // related model. We'll throw an error if an invalid relation type is being
+        // specified
+        $relationType = trim($data[0]);
+        if (!in_array( $relationType, array('ho', 'hm', 'bt', 'btm', 'mm', 'mo') ))
+        {
+            throw new ParseError("Invalid relation type: " . $relationType);
+        }
+
         $parsedData = array(
             'relatedModel' => trim($data[1]),
-            'relationType' => trim($data[0]),
+            'relationType' => $relationType,
             'pivotTable' => '',
             'foreignKey' => '',
         );
@@ -102,12 +121,26 @@ class ModelDefinitionParser
                     trim($data[4])
                 );
             }
+            // Else if count is not even 2, then there is a syntax error
+            else if (count($data) != 2)
+            {
+                throw new ParseError("Belongs to many relation needs none or both foreign keys present, but found just one: " . $segment);
+            }
         }
         // For all other cases, simple set the foreignKey parameter if present
         // else set it to blank
         else
         {
             $parsedData['foreignKey'] = isset($data[2]) ? trim($data[2]) : '';
+        }
+
+        // Polymorphic relations need a compulsory third foreign key parameter
+        if (in_array( $parsedData['relationType'], array('mm', 'mo') ))
+        {
+            if (!$parsedData['foreignKey'])
+            {
+                throw new ParseError("Polymorphic relations require foreign key to be specified: " . $segment);
+            }
         }
 
         return $parsedData;

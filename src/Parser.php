@@ -1,5 +1,7 @@
 <?php namespace LarryFour;
 
+use \LarryFour\Exception\ParseError;
+
 class Parser
 {
     /**
@@ -70,6 +72,9 @@ class Parser
         $currentModel = null;
         foreach ($lines as $line)
         {
+            // Increment current line count
+            $currentLine++;
+
             // Ignore blank lines
             if (!trim($line)) continue;
 
@@ -83,17 +88,24 @@ class Parser
                 if (!$currentModel) die('Field definitions appearing before a model is defined.');
 
                 // Else, let's start working on the field
-                $this->parseFieldDefinitionLine($line, $currentModel);
+                try {
+                    $this->parseFieldDefinitionLine($line, $currentModel);
+                }
+                catch (ParseError $e) {
+                    throw new ParseError("[Line $currentLine] " . $e->getMessage() ."\n");
+                }
             }
             else
             {
                 // Line is a model definition
                 // Parse it and set the current model
-                $currentModel = $this->parseModelDefinitionLine($line);
+                try {
+                    $currentModel = $this->parseModelDefinitionLine($line);
+                }
+                catch (ParseError $e) {
+                    throw new ParseError("[Line $currentLine] " . $e->getMessage() ."\n");
+                }
             }
-
-            // Increment current line count
-            $currentLine++;
         }
 
         // Process all the relations and add in the respective columns
