@@ -187,6 +187,17 @@ class Parser
                 );
             }
 
+            // Else if relation type is bt
+            else if ($rel['relationType'] == 'bt')
+            {
+                // The column appears in the same table
+                $this->migrationList->addForeignKey(
+                    $rel['fromModel'],
+                    $rel['relatedModel'],
+                    $rel['foreignKey']
+                );
+            }
+
             // Else if relation type is btm
             else if ($rel['relationType'] == 'btm')
             {

@@ -135,6 +135,16 @@ class ParserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($role_user->columnExists('user_id'));
     }
 
+    public function testBtRelationInMigration()
+    {
+        $parsed = $this->getSampleParsedObject();
+        $migrations = $parsed['migrationList']->all();
+
+        $post = $migrations['Post'];
+
+        $this->assertTrue($post->columnExists('user_id'));
+    }
+
     private function getSampleParsedObject()
     {
         if (is_null($this->parsed))
@@ -158,7 +168,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
     private function getSampleInput()
     {
         return <<<EOF
-User users; hm Post; btm Role;
+User users; hm Post; btm Role; mm Image imageable;
     id increments
     username string 50; default "hello world"; nullable;
     password string 64
