@@ -77,6 +77,16 @@ EOF;
         $this->assertErrorOutput($input, "[Line 2] Invalid field modifier: nullis\n");
     }
 
+    public function testInsufficientParametersForDecimalFieldThrowsError()
+    {
+        $input = <<<EOF
+User users; hm Post; btm Role roles_user; mm Image imageable;
+    user decimal 50;
+EOF;
+
+        $this->assertErrorOutput($input, "[Line 2] Decimal field requires two parameters, precision and scale: user decimal 50\n");
+    }
+
     private function assertErrorOutput($input, $expectedError)
     {
         try {

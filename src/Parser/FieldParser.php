@@ -174,6 +174,13 @@ class FieldParser
             $parameters = isset($data[2]) ? explode(" ", trim($data[2])) : array();
         }
 
+        // Additional error checks on parameters
+        // Decimal field needs two parameters
+        if ($type == 'decimal' && (count($parameters) < 2))
+        {
+            throw new ParseError("Decimal field requires two parameters, precision and scale: {$fieldSegment}");
+        }
+
 
         // Return the final set of parameters
         return array(
