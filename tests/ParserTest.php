@@ -193,7 +193,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
         $user = $models['User'];
 
-        $this->assertTrue($user->hasFunction('roles', 'Role', 'btm'));
+        $this->assertTrue($user->hasFunction('thumbs', 'Thumb', 'btm', array('u_id', 't_id'), 't_u' ));
     }
 
     private function getSampleParsedObject()

@@ -86,9 +86,10 @@ class Model
      * @param  string  $relatedModel The related model
      * @param  string  $relationType The relation type
      * @param  string  $foreignKey   The foreign key override used in the relational function
+     * @param  string  $pivotTable   The pivot table name override which is only considered for btm
      * @return boolean               Whether the function given in this form exists
      */
-    public function hasFunction($functionName, $relatedModel, $relationType, $foreignKey = '')
+    public function hasFunction($functionName, $relatedModel, $relationType, $foreignKey = '', $pivotTable = '')
     {
         // If the function doesn't exist, return false
         if (!isset( $this->functions[ $functionName ] )) return false;
@@ -105,6 +106,11 @@ class Model
 
         // Check for foreign key override
         if ($function['foreignKey'] != $foreignKey)
+            return false;
+
+        // Check for pivot table override in case of btm
+        if ( ($function['relationType'] == 'btm')
+             && ($function['pivotTable'] != $pivotTable) )
             return false;
 
         // Return true finally
