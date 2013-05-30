@@ -227,7 +227,7 @@ class FieldParser
         }
 
 
-        // Finally, return an empty array. We'll do some error handling later
-        return array();
+        // If nothing matches, it's an error
+        throw new ParseError("Invalid field modifier: {$segment}");
     }
 }

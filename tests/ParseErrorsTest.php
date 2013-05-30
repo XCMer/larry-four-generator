@@ -67,6 +67,16 @@ EOF;
         $this->assertErrorOutput($input, "[Line 2] Field does not have type provided: user\n");
     }
 
+    public function testInvalidFieldModifierThrowsError()
+    {
+        $input = <<<EOF
+User users; hm Post; btm Role roles_user; mm Image imageable;
+    user string 50; nullis;
+EOF;
+
+        $this->assertErrorOutput($input, "[Line 2] Invalid field modifier: nullis\n");
+    }
+
     private function assertErrorOutput($input, $expectedError)
     {
         try {
