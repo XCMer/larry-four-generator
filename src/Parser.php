@@ -197,6 +197,19 @@ class Parser
                     $rel['fromModel'],
                     $rel['foreignKey']
                 );
+
+                // Add in the hm/ho function to the fromModel and the bt
+                // function to the related model
+                $this->modelList->addFunction(
+                    $rel['fromModel'],
+                    $rel['relatedModel'],
+                    $rel['relationType']
+                );
+                $this->modelList->addFunction(
+                    $rel['relatedModel'],
+                    $rel['fromModel'],
+                    'bt'
+                );
             }
 
             // Else if relation type is bt

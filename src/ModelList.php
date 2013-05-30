@@ -47,4 +47,18 @@ class ModelList
     {
         return $this->models;
     }
+
+
+    /**
+     * A wrapper for the addFunction method of a model that adds a relational
+     * function to the model file
+     * @param string $inModel      In which model the function has to be added
+     * @param string $toModel      The related model
+     * @param string $relationType The type of the relation
+     */
+    public function addFunction($inModel, $toModel, $relationType)
+    {
+        $this->models[ $inModel ]->addFunction($toModel, $relationType);
+    }
+
 }

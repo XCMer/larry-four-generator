@@ -145,6 +145,18 @@ class ParserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($post->columnExists('user_id'));
     }
 
+    public function testHasOneHasManyFunctionAddedToModel()
+    {
+        $parsed = $this->getSampleParsedObject();
+        $models = $parsed['modelList']->all();
+
+        $user = $models['User'];
+        $post = $models['Post'];
+
+        $this->assertTrue($user->hasFunction('posts', 'Post', 'hm'));
+        $this->assertTrue($post->hasFunction('user', 'User', 'bt'));
+    }
+
     private function getSampleParsedObject()
     {
         if (is_null($this->parsed))
