@@ -21,7 +21,7 @@ class Model
     public $timestamps = false;
 
     /**
-     * List of functions in a model indexed as 'function_name' => array('toModel', 'type')
+     * List of functions in a model indexed as 'function_name' => array('toModel' => , 'type' =>)
      * @var array
      */
     private $functions = array();
@@ -53,7 +53,10 @@ class Model
     public function addFunction($toModel, $relationType)
     {
         $functionName = $this->getRelationalFunctionName($toModel, $relationType);
-        $this->functions[ $functionName ] = array($toModel, $relationType);
+        $this->functions[ $functionName ] = array(
+            'toModel' => $toModel,
+            'relationType' => $relationType
+        );
     }
 
 
@@ -69,11 +72,18 @@ class Model
         // If the function doesn't exist, return false
         if (!isset( $this->functions[ $functionName ] )) return false;
 
+        // Store the function for easier access
+        $function = $this->functions[ $functionName ];
+
         // Else check if the function as the expected parameters
-        return
-            $this->functions[ $functionName ]
-            ==
-            array($relatedModel, $relationType);
+        if ($function['toModel'] != $relatedModel)
+            return false;
+
+        if ($function['relationType'] != $relationType)
+            return false;
+
+        // Return true finally
+        return true;
     }
 
 
