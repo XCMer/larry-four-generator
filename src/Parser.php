@@ -278,25 +278,46 @@ class Parser
     private function processBelongsToManyRelation($rel)
     {
         // Determine the name of the pivot table
-        $pivotTableName =
-            ( strcmp($rel['fromModel'], $rel['relatedModel']) < 0 )
-            ? strtolower($rel['fromModel'] . '_' . $rel['relatedModel'])
-            : strtolower($rel['relatedModel'] . '_' . $rel['fromModel']);
+        // If we're given a pivot table override, use that
+        if ($rel['pivotTable'])
+        {
+            $pivotTableName = $rel['pivotTable'];
+        }
+        else
+        {
+            $pivotTableName =
+                ( strcmp($rel['fromModel'], $rel['relatedModel']) < 0 )
+                ? strtolower($rel['fromModel'] . '_' . $rel['relatedModel'])
+                : strtolower($rel['relatedModel'] . '_' . $rel['fromModel']);
+        }
 
         // Add in the new table
         $this->migrationList->create($pivotTableName, $pivotTableName);
 
         // Add in the columns
+        // Take care to override column names if they have been provided
+        if ($rel['foreignKey'])
+        {
+            $pivotColumn1 = $rel['foreignKey'][0];
+            $pivotColumn2 = $rel['foreignKey'][1];
+        }
+        else
+        {
+            $pivotColumn1 = strtolower($rel['fromModel'] . '_id');
+            $pivotColumn2 = strtolower($rel['relatedModel'] . '_id');
+        }
+
+        // Then add in the two columns
         $this->migrationList->addForeignKey(
             $pivotTableName,
             null,
-            strtolower($rel['fromModel'] . '_id')
+            $pivotColumn1
         );
 
         $this->migrationList->addForeignKey(
             $pivotTableName,
             null,
-            strtolower($rel['relatedModel'] . '_id')
+            $pivotColumn2
         );
 
 

@@ -137,6 +137,21 @@ class ParserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($role_user->columnExists('user_id'));
     }
 
+    public function testBtmIntermediaTableInMigrationWithOverrides()
+    {
+        $parsed = $this->getSampleParsedObject();
+        $migrations = $parsed['migrationList']->all();
+
+        // The "model name" for the pivot table is simply the table name, with
+        // the entire name lowercase (as opposed to a model)
+        // In this case, it is overriden
+        $t_u = $migrations['t_u'];
+
+        // Test presence of fields
+        $this->assertTrue($t_u->columnExists('t_id'));
+        $this->assertTrue($t_u->columnExists('u_id'));
+    }
+
     public function testBtRelationInMigration()
     {
         $parsed = $this->getSampleParsedObject();
