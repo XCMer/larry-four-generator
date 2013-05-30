@@ -21,7 +21,8 @@ class Model
     public $timestamps = false;
 
     /**
-     * List of functions in a model indexed as 'function_name' => array('toModel' => , 'type' =>)
+     * List of functions in a model indexed as 'function_name' =>
+     * array('toModel' => , 'type' =>, 'foreignKey' =>)
      * @var array
      */
     private $functions = array();
@@ -49,14 +50,31 @@ class Model
      * Adds a new relational function to the model
      * @param string $toModel      The related model
      * @param string $relationType The type of the relation
+     * @param string $foreignKey   The foreign key override for the relation
      */
-    public function addFunction($toModel, $relationType)
+    public function addFunction($toModel, $relationType, $foreignKey)
     {
+        // Get the function name for the relation
         $functionName = $this->getRelationalFunctionName($toModel, $relationType);
-        $this->functions[ $functionName ] = array(
-            'toModel' => $toModel,
-            'relationType' => $relationType
-        );
+
+        // A single function can get defined twice due to hm and the corresponding
+        // bt. So we'll create a new array only if the function does not already exist
+        // Add in the data of the model and relationship type
+        if ( !isset($this->functions[ $functionName ]) )
+        {
+            $this->functions[ $functionName ] = array(
+                'toModel' => $toModel,
+                'relationType' => $relationType,
+                'foreignKey' => $foreignKey
+            );
+        }
+
+        // Foreign keys can be set in either the first or the second definition, so
+        // we'll update it only if we get a non-blank foreign key override
+        if ($foreignKey)
+        {
+            $this->functions[ $functionName ]['foreignKey'] = $foreignKey;
+        }
     }
 
 
@@ -65,9 +83,10 @@ class Model
      * @param  string  $functionName The name of the function
      * @param  string  $relatedModel The related model
      * @param  string  $relationType The relation type
-     * @return boolean               [description]
+     * @param  string  $foreignKey   The foreign key override used in the relational function
+     * @return boolean               Whether the function given in this form exists
      */
-    public function hasFunction($functionName, $relatedModel, $relationType)
+    public function hasFunction($functionName, $relatedModel, $relationType, $foreignKey = '')
     {
         // If the function doesn't exist, return false
         if (!isset( $this->functions[ $functionName ] )) return false;
@@ -80,6 +99,10 @@ class Model
             return false;
 
         if ($function['relationType'] != $relationType)
+            return false;
+
+        // Check for foreign key override
+        if ($function['foreignKey'] != $foreignKey)
             return false;
 
         // Return true finally

@@ -203,12 +203,14 @@ class Parser
                 $this->modelList->addFunction(
                     $rel['fromModel'],
                     $rel['relatedModel'],
-                    $rel['relationType']
+                    $rel['relationType'],
+                    $rel['foreignKey']
                 );
                 $this->modelList->addFunction(
                     $rel['relatedModel'],
                     $rel['fromModel'],
-                    'bt'
+                    'bt',
+                    $rel['foreignKey']
                 );
             }
 
@@ -226,7 +228,8 @@ class Parser
                 $this->modelList->addFunction(
                     $rel['fromModel'],
                     $rel['relatedModel'],
-                    $rel['relationType']
+                    $rel['relationType'],
+                    $rel['foreignKey']
                 );
             }
 

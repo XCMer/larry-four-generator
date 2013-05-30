@@ -160,12 +160,11 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testForeignKeyOverrideInHasOneHasManyAndBelongsTo()
     {
-        $this->markTestSkipped();
         $parsed = $this->getSampleParsedObject();
         $models = $parsed['modelList']->all();
 
         $user = $models['User'];
-        $stuff = $models['Post'];
+        $stuff = $models['Stuff'];
 
         $this->assertTrue($stuff->hasFunction('user', 'User', 'bt', 'stuffer_id'));
         $this->assertTrue($user->hasFunction('stuffs', 'Stuff', 'hm', 'stuffer_id'));

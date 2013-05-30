@@ -55,10 +55,11 @@ class ModelList
      * @param string $inModel      In which model the function has to be added
      * @param string $toModel      The related model
      * @param string $relationType The type of the relation
+     * @param string $foreignKey   The foreign key override for the relation
      */
-    public function addFunction($inModel, $toModel, $relationType)
+    public function addFunction($inModel, $toModel, $relationType, $foreignKey)
     {
-        $this->models[ $inModel ]->addFunction($toModel, $relationType);
+        $this->models[ $inModel ]->addFunction($toModel, $relationType, $foreignKey);
     }
 
 }
