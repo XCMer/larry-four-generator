@@ -138,6 +138,11 @@ class FieldParser
         }
 
         // Else, it has to be a normal field
+        // Check if we have sufficient parameters
+        if (count($data) < 2){
+            throw new ParseError("Field does not have type provided: {$fieldSegment}");
+        }
+
         $name = $data[0]; // The name of the field
         $type = $data[1]; // The type of the field
 

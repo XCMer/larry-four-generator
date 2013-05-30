@@ -57,6 +57,16 @@ EOF;
         $this->assertErrorOutput($input, "[Line 2] Invalid field type: strings\n");
     }
 
+    public function testInsufficientFieldDataThrowsError()
+    {
+        $input = <<<EOF
+User users; hm Post; btm Role roles_user; mm Image imageable;
+    user;
+EOF;
+
+        $this->assertErrorOutput($input, "[Line 2] Field does not have type provided: user\n");
+    }
+
     private function assertErrorOutput($input, $expectedError)
     {
         try {
