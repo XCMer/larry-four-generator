@@ -181,102 +181,150 @@ class Parser
      * that were find during parsing
      * @return void
      *
-     * TODO: Just deals with migration for now, we need to add in functions to the models too
      */
     public function processRelations()
     {
         foreach ($this->relations as $rel)
         {
-            // If the relations are of type hm, ho, then the column appears
-            // in the related table
+            // If the relations are of type hm, ho
             if (in_array($rel['relationType'], array('hm', 'ho')))
             {
-                // Add in the key
-                $this->migrationList->addForeignKey(
-                    $rel['relatedModel'],
-                    $rel['fromModel'],
-                    $rel['foreignKey']
-                );
-
-                // Add in the hm/ho function to the fromModel and the bt
-                // function to the related model
-                $this->modelList->addFunction(
-                    $rel['fromModel'],
-                    $rel['relatedModel'],
-                    $rel['relationType'],
-                    $rel['foreignKey']
-                );
-                $this->modelList->addFunction(
-                    $rel['relatedModel'],
-                    $rel['fromModel'],
-                    'bt',
-                    $rel['foreignKey']
-                );
+                $this->processHasRelation($rel);
             }
 
             // Else if relation type is bt
             else if ($rel['relationType'] == 'bt')
             {
-                // The column appears in the same table
-                $this->migrationList->addForeignKey(
-                    $rel['fromModel'],
-                    $rel['relatedModel'],
-                    $rel['foreignKey']
-                );
-
-                // Add in the bt function to the current model
-                $this->modelList->addFunction(
-                    $rel['fromModel'],
-                    $rel['relatedModel'],
-                    $rel['relationType'],
-                    $rel['foreignKey']
-                );
+                $this->processBelongsToRelation($rel);
             }
 
             // Else if relation type is btm
             else if ($rel['relationType'] == 'btm')
             {
-                // Determine the name of the pivot table
-                $pivotTableName =
-                    ( strcmp($rel['fromModel'], $rel['relatedModel']) < 0 )
-                    ? strtolower($rel['fromModel'] . '_' . $rel['relatedModel'])
-                    : strtolower($rel['relatedModel'] . '_' . $rel['fromModel']);
-
-                // Add in the new table
-                $this->migrationList->create($pivotTableName, $pivotTableName);
-
-                // Add in the columns
-                $this->migrationList->addForeignKey(
-                    $pivotTableName,
-                    null,
-                    strtolower($rel['fromModel'] . '_id')
-                );
-
-                $this->migrationList->addForeignKey(
-                    $pivotTableName,
-                    null,
-                    strtolower($rel['relatedModel'] . '_id')
-                );
+                $this->processBelongsToManyRelation($rel);
             }
 
             // Else if type of the relation is polymorphic
             else if (in_array($rel['relationType'], array('mm', 'mo')))
             {
-                // Add in two columns to the related model
-                // A foreign key is required to be specified in this case
-                $this->migrationList->addForeignKey(
-                    $rel['relatedModel'],
-                    $rel['fromModel'],
-                    $rel['foreignKey'] . '_id'
-                );
-
-                $this->migrationList->addForeignKey(
-                    $rel['relatedModel'],
-                    $rel['fromModel'],
-                    $rel['foreignKey'] . '_type',
-                    'string'
-                );
+                $this->processPolymorphicRelation($rel);
             }
         }
+    }
+
+
+    /**
+     * Add the necessary columns to the migration and functions to the models
+     * for a has one or has many relation
+     * @param  array $rel An element of the relation array that is being processed
+     */
+    private function processHasRelation($rel)
+    {
+        // If the relations are of type hm, ho, then the column appears
+        // in the related table
+        // Add in the key
+        $this->migrationList->addForeignKey(
+            $rel['relatedModel'],
+            $rel['fromModel'],
+            $rel['foreignKey']
+        );
+
+        // Add in the hm/ho function to the fromModel and the bt
+        // function to the related model
+        $this->modelList->addFunction(
+            $rel['fromModel'],
+            $rel['relatedModel'],
+            $rel['relationType'],
+            $rel['foreignKey']
+        );
+        $this->modelList->addFunction(
+            $rel['relatedModel'],
+            $rel['fromModel'],
+            'bt',
+            $rel['foreignKey']
+        );
+    }
+
+
+    /**
+     * Add the necessary columns to the migration and functions to the models
+     * for a belongs to relation
+     * @param  array $rel An element of the relation array that is being processed
+     */
+    private function processBelongsToRelation($rel)
+    {
+        // The column appears in the same table
+        $this->migrationList->addForeignKey(
+            $rel['fromModel'],
+            $rel['relatedModel'],
+            $rel['foreignKey']
+        );
+
+        // Add in the bt function to the current model
+        $this->modelList->addFunction(
+            $rel['fromModel'],
+            $rel['relatedModel'],
+            $rel['relationType'],
+            $rel['foreignKey']
+        );
+    }
+
+
+    /**
+     * Add the necessary columns to the migration and functions to the models
+     * for a belongs to many relation
+     * @param  array $rel An element of the relation array that is being processed
+     *
+     * TODO: Add handling for models
+     */
+    private function processBelongsToManyRelation($rel)
+    {
+        // Determine the name of the pivot table
+        $pivotTableName =
+            ( strcmp($rel['fromModel'], $rel['relatedModel']) < 0 )
+            ? strtolower($rel['fromModel'] . '_' . $rel['relatedModel'])
+            : strtolower($rel['relatedModel'] . '_' . $rel['fromModel']);
+
+        // Add in the new table
+        $this->migrationList->create($pivotTableName, $pivotTableName);
+
+        // Add in the columns
+        $this->migrationList->addForeignKey(
+            $pivotTableName,
+            null,
+            strtolower($rel['fromModel'] . '_id')
+        );
+
+        $this->migrationList->addForeignKey(
+            $pivotTableName,
+            null,
+            strtolower($rel['relatedModel'] . '_id')
+        );
+    }
+
+
+    /**
+     * Add the necessary columns to the migration and functions to the models
+     * for a polymorphic relation
+     * @param  array $rel An element of the relation array that is being processed
+     *
+     * TODO: Add handling for models
+     */
+    private function processPolymorphicRelation($rel)
+    {
+        // Add in two columns to the related model
+        // A foreign key is required to be specified in this case
+        $this->migrationList->addForeignKey(
+            $rel['relatedModel'],
+            $rel['fromModel'],
+            $rel['foreignKey'] . '_id'
+        );
+
+        $this->migrationList->addForeignKey(
+            $rel['relatedModel'],
+            $rel['fromModel'],
+            $rel['foreignKey'] . '_type',
+            'string'
+        );
     }
 }
