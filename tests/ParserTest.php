@@ -170,6 +170,16 @@ class ParserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($user->hasFunction('stuffs', 'Stuff', 'hm', 'stuffer_id'));
     }
 
+    public function testHasManyAndBelongsToModelCreationWithOverrides()
+    {
+        $parsed = $this->getSampleParsedObject();
+        $models = $parsed['modelList']->all();
+
+        $user = $models['User'];
+
+        $this->assertTrue($user->hasFunction('roles', 'Role', 'btm', array('u_id', 'r_id'), 'r_u' ));
+    }
+
     private function getSampleParsedObject()
     {
         if (is_null($this->parsed))
@@ -193,7 +203,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
     private function getSampleInput()
     {
         return <<<EOF
-User users; hm Post; btm Role; mm Image imageable; hm Stuff stuffer_id;
+User users; hm Post; btm Role r_u u_id r_id; mm Image imageable; hm Stuff stuffer_id;
     id increments
     username string 50; default "hello world"; nullable;
     password string 64

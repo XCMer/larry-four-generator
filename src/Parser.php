@@ -274,8 +274,6 @@ class Parser
      * Add the necessary columns to the migration and functions to the models
      * for a belongs to many relation
      * @param  array $rel An element of the relation array that is being processed
-     *
-     * TODO: Add handling for models
      */
     private function processBelongsToManyRelation($rel)
     {
@@ -299,6 +297,16 @@ class Parser
             $pivotTableName,
             null,
             strtolower($rel['relatedModel'] . '_id')
+        );
+
+
+        // Manage the models
+        $this->modelList->addFunction(
+            $rel['fromModel'],
+            $rel['relatedModel'],
+            $rel['relationType'],
+            $rel['foreignKey'],
+            $rel['pivotTable']
         );
     }
 

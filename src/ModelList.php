@@ -56,10 +56,11 @@ class ModelList
      * @param string $toModel      The related model
      * @param string $relationType The type of the relation
      * @param string $foreignKey   The foreign key override for the relation
+     * @param string $pivotTable   The pivot table name override for btm
      */
-    public function addFunction($inModel, $toModel, $relationType, $foreignKey)
+    public function addFunction($inModel, $toModel, $relationType, $foreignKey, $pivotTable = '')
     {
-        $this->models[ $inModel ]->addFunction($toModel, $relationType, $foreignKey);
+        $this->models[ $inModel ]->addFunction($toModel, $relationType, $foreignKey, $pivotTable);
     }
 
 }

@@ -51,8 +51,9 @@ class Model
      * @param string $toModel      The related model
      * @param string $relationType The type of the relation
      * @param string $foreignKey   The foreign key override for the relation
+     * @param string $pivotTable   The pivot table name override for btm
      */
-    public function addFunction($toModel, $relationType, $foreignKey)
+    public function addFunction($toModel, $relationType, $foreignKey, $pivotTable = '')
     {
         // Get the function name for the relation
         $functionName = $this->getRelationalFunctionName($toModel, $relationType);
@@ -65,7 +66,8 @@ class Model
             $this->functions[ $functionName ] = array(
                 'toModel' => $toModel,
                 'relationType' => $relationType,
-                'foreignKey' => $foreignKey
+                'foreignKey' => $foreignKey,
+                'pivotTable' => $pivotTable
             );
         }
 
@@ -119,9 +121,9 @@ class Model
      */
     private function getRelationalFunctionName($toModel, $relationType)
     {
-        // If the relation type is hasMany of hasOne, then the function name should
-        // be the pluralized version of the related model
-        if (in_array( $relationType, array('hm', 'ho') ))
+        // If the relation type is hasMany, hasOne, hasManyAndBelongsToMany,
+        // then the function name should be the pluralized version of the related model
+        if (in_array( $relationType, array('hm', 'ho', 'btm') ))
         {
             return Inflect::pluralize(strtolower($toModel));
         }
