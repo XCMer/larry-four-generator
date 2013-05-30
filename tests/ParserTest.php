@@ -196,6 +196,20 @@ class ParserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($user->hasFunction('thumbs', 'Thumb', 'btm', array('u_id', 't_id'), 't_u' ));
     }
 
+    public function testPolymorphicRelation()
+    {
+        $parsed = $this->getSampleParsedObject();
+        $models = $parsed['modelList']->all();
+
+        $user = $models['User'];
+        $post = $models['Post'];
+        $image = $models['Image'];
+
+        $this->assertTrue($user->hasFunction('images', 'Image', 'mm', 'imageable' ));
+        $this->assertTrue($post->hasFunction('images', 'Image', 'mm', 'imageable' ));
+        $this->assertTrue($image->hasFunction('imageable', null, 'mt', 'imageable'));
+    }
+
     private function getSampleParsedObject()
     {
         if (is_null($this->parsed))

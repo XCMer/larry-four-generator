@@ -56,7 +56,15 @@ class Model
     public function addFunction($toModel, $relationType, $foreignKey, $pivotTable = '')
     {
         // Get the function name for the relation
-        $functionName = $this->getRelationalFunctionName($toModel, $relationType);
+        // For morphTo, the function is the same name as the foreignKey
+        if ($relationType == 'mt')
+        {
+            $functionName = $foreignKey;
+        }
+        else
+        {
+            $functionName = $this->getRelationalFunctionName($toModel, $relationType);
+        }
 
         // A single function can get defined twice due to hm and the corresponding
         // bt. So we'll create a new array only if the function does not already exist
@@ -129,14 +137,14 @@ class Model
     {
         // If the relation type is hasMany, hasOne, hasManyAndBelongsToMany,
         // then the function name should be the pluralized version of the related model
-        if (in_array( $relationType, array('hm', 'ho', 'btm') ))
+        if (in_array( $relationType, array('hm', 'ho', 'btm', 'mm') ))
         {
             return Inflect::pluralize(strtolower($toModel));
         }
 
         // If the relation is belongsTo, then the name of the function is the singular
         // version of the related table
-        else if ( $relationType =='bt' )
+        else if (in_array($relationType, array('bt', 'mo') ))
         {
             return strtolower($toModel);
         }

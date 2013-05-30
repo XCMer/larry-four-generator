@@ -336,8 +336,6 @@ class Parser
      * Add the necessary columns to the migration and functions to the models
      * for a polymorphic relation
      * @param  array $rel An element of the relation array that is being processed
-     *
-     * TODO: Add handling for models
      */
     private function processPolymorphicRelation($rel)
     {
@@ -354,6 +352,25 @@ class Parser
             $rel['fromModel'],
             $rel['foreignKey'] . '_type',
             'string'
+        );
+
+
+        // Add functions in both the models
+        // The relatedModel is where we need to add the morphTo function
+        // with the same name as the foreignKey
+        $this->modelList->addFunction(
+            $rel['relatedModel'],
+            null, // The morphTo function doesn't relate to any specific model
+            'mt',
+            $rel['foreignKey']
+        );
+
+        // Now add the appropriate function to the current table
+        $this->modelList->addFunction(
+            $rel['fromModel'],
+            $rel['relatedModel'],
+            $rel['relationType'],
+            $rel['foreignKey']
         );
     }
 }
