@@ -47,6 +47,16 @@ EOF;
         $this->assertErrorOutput($input, "[Line 1] Belongs to many relation needs none or both foreign keys present, but found just one: btm Role roles_user role_id\n");
     }
 
+    public function testInvalidFieldTypesThrowError()
+    {
+        $input = <<<EOF
+User users; hm Post; btm Role roles_user; mm Image imageable;
+    user strings;
+EOF;
+
+        $this->assertErrorOutput($input, "[Line 2] Invalid field type: strings\n");
+    }
+
     private function assertErrorOutput($input, $expectedError)
     {
         try {

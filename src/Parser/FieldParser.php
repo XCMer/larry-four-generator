@@ -1,5 +1,7 @@
 <?php namespace LarryFour\Parser;
 
+use \LarryFour\Exception\ParseError;
+
 class FieldParser
 {
     public function parse($line)
@@ -138,6 +140,18 @@ class FieldParser
         // Else, it has to be a normal field
         $name = $data[0]; // The name of the field
         $type = $data[1]; // The type of the field
+
+        // Check for validity of the type field
+        if (
+            !in_array($type, array(
+                'increments', 'string', 'integer', 'bigInteger', 'smallInteger',
+                'float', 'decimal', 'boolean', 'date', 'dateTime', 'time', 'timestamp',
+                'text', 'binary', 'enum'
+            ))
+        )
+        {
+            throw new ParseError("Invalid field type: {$type}");
+        }
 
         // The parameters are separated by spaces for a normal field, but by a
         // CSV styled value for the enum type, which can be different types of
