@@ -221,6 +221,13 @@ class Parser
                     $rel['relatedModel'],
                     $rel['foreignKey']
                 );
+
+                // Add in the bt function to the current model
+                $this->modelList->addFunction(
+                    $rel['fromModel'],
+                    $rel['relatedModel'],
+                    $rel['relationType']
+                );
             }
 
             // Else if relation type is btm
