@@ -25,7 +25,8 @@ class ParserTest extends PHPUnit_Framework_TestCase
                 'Post',
                 'Image',
                 'Role',
-                'Stuff'
+                'Stuff',
+                'Thumb'
             ),
             array_keys($models)
         );
@@ -177,7 +178,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
         $user = $models['User'];
 
-        $this->assertTrue($user->hasFunction('roles', 'Role', 'btm', array('u_id', 'r_id'), 'r_u' ));
+        $this->assertTrue($user->hasFunction('roles', 'Role', 'btm'));
     }
 
     private function getSampleParsedObject()
@@ -203,7 +204,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
     private function getSampleInput()
     {
         return <<<EOF
-User users; hm Post; btm Role r_u u_id r_id; mm Image imageable; hm Stuff stuffer_id;
+User users; hm Post; btm Role; mm Image imageable; hm Stuff stuffer_id; btm Thumb t_u u_id t_id;
     id increments
     username string 50; default "hello world"; nullable;
     password string 64
@@ -223,6 +224,9 @@ Role
     timestamps
 
 Stuff; bt User;
+    timestamps
+
+Thumb
     timestamps
 EOF;
     }
