@@ -37,3 +37,9 @@ same time giving the flexibility to customize more of the generated output.
 Also, I'm following a test-based approach for this version of Larry, so you should see a PHPUnit
 test suite for every code written. This was essential because parsing is tricky business, and the
 most obvious way to make sure it's working right is to run it.
+
+## Updates
+
+**31st May, 2013:** The parsing bit is done. All that is remaining for me is to write the code generation
+bit, which should be pretty straightforward. Since L4 has been made public, I'll try to expedite this.
+Laravel 4 looks really amazing.
