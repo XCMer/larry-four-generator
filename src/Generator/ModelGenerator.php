@@ -22,12 +22,21 @@ class ModelGenerator
      */
     public function __construct()
     {
+        // Load the model template
         $this->modelTemplate = file_get_contents(__DIR__ . '/templates/model');
-        $this->relationalFunctionTemplate = file_get_contents(__DIR__ . '/templates/relational_function');
+
+        // Load the relation function block template
+        $this->relationalFunctionTemplate =
+            file_get_contents(__DIR__ . '/templates/relational_function');
     }
 
 
-    // TODO: add support for tableName
+    /**
+     * Generate the model file contents from the templates and the model
+     * object provided
+     * @param  \LarryFour\Model $model The model object whose model file has to be generated
+     * @return string                  The model file contents
+     */
     public function generate($model)
     {
         // Store the local version of the template
@@ -59,13 +68,30 @@ class ModelGenerator
         return $result;
     }
 
+
+    /**
+     * Given the model file contents, put in the model name in the appropriate
+     * location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  string $modelName         The name of the model
+     * @return string                    The updated model file contents
+     */
     private function addModelName($modelFileContents, $modelName)
     {
         return str_replace('{{modelName}}', $modelName, $modelFileContents);
     }
 
+
+    /**
+     * Given the model file contents, put in the timestamps in the appropriate
+     * location if needed
+     * @param  string  $modelFileContents The contents of the model file
+     * @param  boolean $timestamps        Whether timestamps are needed
+     * @return string                    The updated model file contents
+     */
     private function addTimestampsIfNeeded($modelFileContents, $timestamps)
     {
+        // Always explicitly set the timestamps field to true or false
         if ($timestamps)
         {
             $t = 'public $timestamps = true;';
@@ -81,12 +107,24 @@ class ModelGenerator
         );
     }
 
+
+    /**
+     * Given the model file contents, put in the primary key override in the appropriate
+     * location if needed
+     * @param  string  $modelFileContents The contents of the model file
+     * @param  string $primaryKey         The primary key of the model
+     * @return string                     The updated model file contents
+     */
     private function addPrimaryKeyIfNeeded($modelFileContents, $primaryKey)
     {
+        // If the primary key is id, simply remove the primary key line along
+        // with its newline
         if ($primaryKey == 'id')
         {
-            return str_replace('    {{primaryKey}}' . "\n", '', $modelFileContents);
+            return str_replace("    {{primaryKey}}\n", '', $modelFileContents);
         }
+
+        // Else, add in the primary key line overriding the defaults
         else
         {
             return str_replace('{{primaryKey}}',
@@ -96,8 +134,18 @@ class ModelGenerator
         }
     }
 
+
+    /**
+     * Given the model file contents, put in the table name override in the appropriate
+     * location if needed
+     * @param  string  $modelFileContents The contents of the model file
+     * @param  string  $tableName         The table name override or blank
+     * @return string                     The updated model file contents
+     */
     private function addTableNameIfNeeded($modelFileContents, $tableName)
     {
+        // If the model has a table name, it means that it was overriden,
+        // so put in a table name line
         if ($tableName)
         {
             return str_replace('{{tableName}}',
@@ -105,12 +153,22 @@ class ModelGenerator
                 $modelFileContents
             );
         }
+
+        // Else remove the line
         else
         {
-            return str_replace('    {{tableName}}' . "\n", '', $modelFileContents);
+            return str_replace("    {{tableName}}\n", '', $modelFileContents);
         }
     }
 
+
+    /**
+     * Given a function name and all the data related to it, generate the relation
+     * function block with all the necessary parameters
+     * @param  string $functionName The name of the function
+     * @param  array  $functionData All the meta data related to the function
+     * @return string               The relation function block
+     */
     private function getRelationFunction($functionName, $functionData)
     {
         // Store the template locally
@@ -120,6 +178,8 @@ class ModelGenerator
         $result = str_replace('{{functionName}}', $functionName, $result);
 
         // Create the function body
+        // We begin with:
+        // return $this->function('Model'
         $functionBody = 'return $this->'
             . $this->getFunctionNameFromRelationType($functionData['relationType'])
             . "('" . $functionData['toModel'] . "'" ;
@@ -128,24 +188,30 @@ class ModelGenerator
         // For belongs to many, we have the table name override first, and then
         // the foreign keys. For everything else, there is just one foreign key
         //
+        // We'll arrive at one of the following:
+        // return $this->function('Model', 'foreignKey'
+        // return $this->function('Model', 'pivotTable'
+        // return $this->function('Model', 'pivotTable', 'foreignKey1', 'foreignKey2'
+        //
         // First, check if it is a belongsToMany
         if ($functionData['relationType'] == 'btm')
         {
             // Check if a pivot table is provided
             if ($functionData['pivotTable'])
             {
-                // Add that in first
+                // Add the pivot table first
                 $functionBody .= ", '" . $functionData['pivotTable'] . "'";
 
                 // Now check if we also have the two foreign keys
                 if ($functionData['foreignKey'])
                 {
-                    // Add them as well
+                    // Add the two foreign keys as well
                     $functionBody .= ", '" . $functionData['foreignKey'][0] . "'"
                         . ", '" . $functionData['foreignKey'][1] . "'";
                 }
             }
         }
+
         // For all other relations, check if a foreign key is override is present, and
         // append it
         else
@@ -155,6 +221,7 @@ class ModelGenerator
                 $functionBody .= ", '" . $functionData['foreignKey'] . "'";
             }
         }
+
 
         // Close the parenthesis and add a semicolon
         $functionBody .= ');';
@@ -168,6 +235,13 @@ class ModelGenerator
         return $result;
     }
 
+
+    /**
+     * Given a relation type code, get the function name as it goes inside
+     * Eloquent
+     * @param  string $relationType The relation type code
+     * @return string               The function name of the relation as in Eloquent
+     */
     private function getFunctionNameFromRelationType($relationType)
     {
         switch ($relationType)
@@ -195,14 +269,28 @@ class ModelGenerator
         }
     }
 
+
+    /**
+     * Add the given function block at the appropriate location of the model file
+     * template
+     * @param  string $modelFileContents The model file contents
+     * @param  string $functionBlock     The generated function block
+     * @return string                    The new model file contents
+     */
     private function addRelationFunction($modelFileContents, $functionBlock)
     {
         return str_replace('    {{relationalFunctions}}',
-            $functionBlock . "\n" . '    {{relationalFunctions}}',
+            "{$functionBlock}\n    {{relationalFunctions}}",
             $modelFileContents
         );
     }
 
+
+    /**
+     * Remove the relation function placeholder tag from the model contents
+     * @param  string $modelFileContents The model file contents
+     * @return string                    The new model file contents
+     */
     private function removeRelationFunctionTag($modelFileContents)
     {
         return str_replace("\n" . '    {{relationalFunctions}}',
