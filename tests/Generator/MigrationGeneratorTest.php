@@ -11,13 +11,6 @@ use \LarryFour\Tests\ParsedResult;
 class MigrationGeneratorTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * The output array of the parsed input file
-     * @var array
-     */
-    private $parsed = null;
-
-
-    /**
      * An instance of the migration generator so that it need not be created
      * again and again
      * @var [type]

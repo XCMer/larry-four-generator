@@ -9,11 +9,6 @@ use \LarryFour\Tests\ParsedResult;
 
 class ParserTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * Stores the parsed result of the sample input, since all the function parse
-     * the same input
-     */
-    private $parsed = null;
 
     public function testParsingOfModelNames()
     {
