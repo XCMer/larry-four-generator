@@ -201,12 +201,6 @@ class Parser
                 $this->processHasRelation($rel);
             }
 
-            // Else if relation type is bt
-            else if ($rel['relationType'] == 'bt')
-            {
-                $this->processBelongsToRelation($rel);
-            }
-
             // Else if relation type is btm
             else if ($rel['relationType'] == 'btm')
             {
@@ -250,30 +244,6 @@ class Parser
             $rel['relatedModel'],
             $rel['fromModel'],
             'bt',
-            $rel['foreignKey']
-        );
-    }
-
-
-    /**
-     * Add the necessary columns to the migration and functions to the models
-     * for a belongs to relation
-     * @param  array $rel An element of the relation array that is being processed
-     */
-    private function processBelongsToRelation($rel)
-    {
-        // The column appears in the same table
-        $this->migrationList->addForeignKey(
-            $rel['fromModel'],
-            $rel['relatedModel'],
-            $rel['foreignKey']
-        );
-
-        // Add in the bt function to the current model
-        $this->modelList->addFunction(
-            $rel['fromModel'],
-            $rel['relatedModel'],
-            $rel['relationType'],
             $rel['foreignKey']
         );
     }
