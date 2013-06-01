@@ -113,7 +113,7 @@ class MigrationGenerator
             'unique', 'index');
         foreach ($modifiers as $m)
         {
-            if ( isset($fieldData[$m]) )
+            if ( isset($fieldData[$m]) && ($fieldData[$m]) )
             {
                 $result  .= '->' . $m . '(';
 
