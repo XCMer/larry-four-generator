@@ -54,6 +54,20 @@ class MigrationGenerator
             );
         }
 
+        // See if timestamps is present
+        if ($migration->timestamps)
+        {
+            $tsField = $this->getFieldLine(array(
+                'name' => '',
+                'type' => 'timestamps',
+                'parameters' => array()
+            ));
+            $result = str_replace('{{fields}}',
+                $tsField . "\n            {{fields}}",
+                $result
+            );
+        }
+
         // Remove the final fields tag
         $result = str_replace("\n            {{fields}}", '', $result);
 
@@ -63,6 +77,12 @@ class MigrationGenerator
 
     private function getFieldLine($fieldData)
     {
+        // Handling for timestamps
+        if ($fieldData['type'] == 'timestamps')
+        {
+            return '$table->timestamps();';
+        }
+
         // The beginning till the function
         $result = '$table->'
             . $fieldData['type']
