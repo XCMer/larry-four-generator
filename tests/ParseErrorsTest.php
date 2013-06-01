@@ -6,6 +6,7 @@ use \LarryFour\Parser;
 use \LarryFour\ModelList;
 use \LarryFour\MigrationList;
 use \LarryFour\Exception\ParseError;
+use \LarryFour\Tests\ParsedResult;
 
 class ParseErrorsTest extends PHPUnit_Framework_TestCase
 {
@@ -99,22 +100,12 @@ EOF;
     private function assertErrorOutput($input, $expectedError)
     {
         try {
-            $this->getParsedOutput($input);
+            ParsedResult::getParsedOutput($input);
             $this->fail("Error not thrown: " . $expectedError);
         }
         catch (ParseError $e)
         {
              $this->assertEquals($expectedError, $e->getMessage());
         }
-    }
-
-    private function getParsedOutput($input)
-    {
-        $p = new Parser(
-            new FieldParser(),
-            new ModelDefinitionParser(),
-            new ModelList(),
-            new MigrationList());
-        return $p->parse($input);
     }
 }
