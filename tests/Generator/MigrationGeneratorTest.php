@@ -54,15 +54,15 @@ class MigrationGeneratorTest extends PHPUnit_Framework_TestCase
         $this->runGeneratedMigrationForTable('Thumb', 'migration_thumb');
     }
 
-    // public function testGeneratedMigrationContentsForRoleUserTable()
-    // {
-    //     $this->runGeneratedMigrationForTable('role_user', 'migration_role_user');
-    // }
+    public function testGeneratedMigrationContentsForRoleUserTable()
+    {
+        $this->runGeneratedMigrationForTable('role_user', 'migration_role_user');
+    }
 
-    // public function testGeneratedMigrationContentsForTUTable()
-    // {
-    //     $this->runGeneratedMigrationForTable('t_u', 'migration_t_u');
-    // }
+    public function testGeneratedMigrationContentsForTUTable()
+    {
+        $this->runGeneratedMigrationForTable('t_u', 'migration_t_u');
+    }
 
     private function runGeneratedMigrationForTable($modelName, $migrationFile)
     {

@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+
+class CreateTuTable extends Migration {
+
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('t_u', function($table) {
+            $table->increments('id');
+            $table->integer('u_id')->unsigned();
+            $table->integer('t_id')->unsigned();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::drop('t_u');
+    }
+
+}
