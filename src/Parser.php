@@ -132,11 +132,12 @@ class Parser
         $parsed = $this->modelDefinitionParser->parse(trim($line));
 
         // Create a new model and migration
+        // The table name can either be blank or overriden.
         $modelName = $parsed['modelName'];
         $tableName = $parsed['tableName'];
 
-        $model = $this->modelList->create($modelName, $tableName);
-        $this->migrationList->create($modelName, $model->tableName);
+        $this->modelList->create($modelName, $tableName);
+        $this->migrationList->create($modelName, $tableName);
 
         // Detect and add in relations for later use
         foreach ($parsed['relations'] as $rel)

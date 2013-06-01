@@ -35,21 +35,13 @@ class Model
     private $functions = array();
 
 
-    public function __construct($modelName, $tableName = null)
+    public function __construct($modelName, $tableName)
     {
         // Set the model name
         $this->modelName = $modelName;
 
-        // Set the given table name, or plularize the model name if
-        // not given
-        if (!$tableName)
-        {
-            $this->tableName = strtolower(\LarryFour\Inflect::pluralize($modelName));
-        }
-        else
-        {
-            $this->tableName = $tableName;
-        }
+        // Set the table name
+        $this->tableName = $tableName;
     }
 
 

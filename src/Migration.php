@@ -29,9 +29,18 @@ class Migration
     private $columns = array();
 
 
-    public function __construct($tableName)
+    public function __construct($modelName, $tableName)
     {
-        $this->tableName = $tableName;
+        // Set the given table name, or plularize the model name if
+        // not given
+        if (!$tableName)
+        {
+            $this->tableName = strtolower(\LarryFour\Inflect::pluralize($modelName));
+        }
+        else
+        {
+            $this->tableName = $tableName;
+        }
     }
 
 

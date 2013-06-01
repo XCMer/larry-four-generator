@@ -80,7 +80,7 @@ class MigrationList
      */
     public function create($modelName, $tableName)
     {
-        $this->migrations[$modelName] = new Migration($tableName);
+        $this->migrations[$modelName] = new Migration($modelName, $tableName);
     }
 
 

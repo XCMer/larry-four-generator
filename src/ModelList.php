@@ -39,7 +39,7 @@ class ModelList
     /**
      * Creates and adds a new model, given the model name and the table name
      * @param string $modelName The name of the model as parsed
-     * @param string $tableName The name of the table as parsed
+     * @param string $tableName The name of the table as if overriden
      *
      * @return \LarryFour\Model The newly created model
      */
