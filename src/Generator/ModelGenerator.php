@@ -42,6 +42,9 @@ class ModelGenerator
         // Add in the primary key if needed
         $result = $this->addPrimaryKeyIfNeeded($result, $model->primaryKey);
 
+        // Add in the table name if needed
+        $result = $this->addTableNameIfNeeded($result, $model->tableName);
+
         // Add in all the functions
         foreach ($model->all() as $functionName => $functionData)
         {
@@ -90,6 +93,21 @@ class ModelGenerator
                 "public \$primaryKey = '{$primaryKey}';",
                 $modelFileContents
             );
+        }
+    }
+
+    private function addTableNameIfNeeded($modelFileContents, $tableName)
+    {
+        if ($tableName)
+        {
+            return str_replace('{{tableName}}',
+                "protected \$table = '{$tableName}';",
+                $modelFileContents
+            );
+        }
+        else
+        {
+            return str_replace('    {{tableName}}' . "\n", '', $modelFileContents);
         }
     }
 

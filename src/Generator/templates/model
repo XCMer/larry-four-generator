@@ -2,6 +2,7 @@
 
 class {{modelName}} extends Eloquent
 {
+    {{tableName}}
     {{primaryKey}}
     {{timestamps}}
 
