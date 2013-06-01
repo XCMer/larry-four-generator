@@ -25,6 +25,17 @@ class MigrationList
 
 
     /**
+     * Sets the primary key for the table belonging to the given model
+     * @param string $modelName  The name of the model
+     * @param string $primaryKey The name of the primary key
+     */
+    public function setPrimaryKey($modelName, $primaryKey)
+    {
+        $this->migrations[$modelName]->primaryKey = $primaryKey;
+    }
+
+
+    /**
      * Adds a column to the table represented by the given model
      * @param string $modelName  The name of the model
      * @param array  $columnInfo The column data as accepted by the migration function addColumn4

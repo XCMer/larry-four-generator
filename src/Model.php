@@ -21,6 +21,13 @@ class Model
     public $timestamps = false;
 
     /**
+     * The primary key column name that is an integer auto increment. It is
+     * called 'id' by default.
+     * @var string
+     */
+    public $primaryKey = 'id';
+
+    /**
      * List of functions in a model indexed as 'function_name' =>
      * array('toModel' => , 'type' =>, 'foreignKey' =>)
      * @var array

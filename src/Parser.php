@@ -171,6 +171,15 @@ class Parser
             return;
         }
 
+        // Check if field type is increments
+        if ($parsed['type'] == 'increments')
+        {
+            $this->modelList->setPrimaryKey($model, $parsed['name']);
+            $this->migrationList->setPrimaryKey($model, $parsed['name']);
+            return;
+        }
+
+
         // For other fields, add them to the current migration
         $this->migrationList->addColumn($model, $parsed);
     }

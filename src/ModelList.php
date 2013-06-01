@@ -26,6 +26,17 @@ class ModelList
 
 
     /**
+     * Sets the primary key for given model
+     * @param string $modelName  The name of the model
+     * @param string $primaryKey The primary key name
+     */
+    public function setPrimaryKey($modelName, $primaryKey)
+    {
+        $this->models[$modelName]->primaryKey = $primaryKey;
+    }
+
+
+    /**
      * Creates and adds a new model, given the model name and the table name
      * @param string $modelName The name of the model as parsed
      * @param string $tableName The name of the table as parsed
