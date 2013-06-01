@@ -5,6 +5,7 @@ use \LarryFour\Parser\ModelDefinitionParser;
 use \LarryFour\Parser;
 use \LarryFour\ModelList;
 use \LarryFour\MigrationList;
+use \LarryFour\Tests\ParsedResult;
 
 class ParserTest extends PHPUnit_Framework_TestCase
 {
@@ -16,7 +17,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testParsingOfModelNames()
     {
-        $parsed = $this->getSampleParsedObject();
+        $parsed = ParsedResult::getSampleParsedObject();
         $models = $parsed['modelList']->all();
 
         $this->assertEquals(
@@ -37,7 +38,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testParsingOfModelTableNameOverrides()
     {
-        $parsed = $this->getSampleParsedObject();
+        $parsed = ParsedResult::getSampleParsedObject();
         $models = $parsed['modelList']->all();
 
         $this->assertEquals('users', $models['User']->tableName);
@@ -47,7 +48,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testParsingOfMigrationInformation()
     {
-        $parsed = $this->getSampleParsedObject();
+        $parsed = ParsedResult::getSampleParsedObject();
         $migrations = $parsed['migrationList']->all();
 
         $this->assertEquals('users', $migrations['User']->tableName);
@@ -57,7 +58,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testTimestampsParameter()
     {
-        $parsed = $this->getSampleParsedObject();
+        $parsed = ParsedResult::getSampleParsedObject();
         $models = $parsed['modelList']->all();
         $migrations = $parsed['migrationList']->all();
 
@@ -72,7 +73,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testAdditionOfFieldsToMigration()
     {
-        $parsed = $this->getSampleParsedObject();
+        $parsed = ParsedResult::getSampleParsedObject();
         $migrations = $parsed['migrationList']->all();
 
         $user = $migrations['User'];
@@ -110,7 +111,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testAdditionOfRelationFieldsToMigration()
     {
-        $parsed = $this->getSampleParsedObject();
+        $parsed = ParsedResult::getSampleParsedObject();
         $migrations = $parsed['migrationList']->all();
 
         $user = $migrations['User'];
@@ -125,7 +126,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testBtmIntermediaTableInMigration()
     {
-        $parsed = $this->getSampleParsedObject();
+        $parsed = ParsedResult::getSampleParsedObject();
         $migrations = $parsed['migrationList']->all();
 
         // The "model name" for the pivot table is simply the table name, with
@@ -139,7 +140,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testBtmIntermediaTableInMigrationWithOverrides()
     {
-        $parsed = $this->getSampleParsedObject();
+        $parsed = ParsedResult::getSampleParsedObject();
         $migrations = $parsed['migrationList']->all();
 
         // The "model name" for the pivot table is simply the table name, with
@@ -154,7 +155,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testBtRelationInMigration()
     {
-        $parsed = $this->getSampleParsedObject();
+        $parsed = ParsedResult::getSampleParsedObject();
         $migrations = $parsed['migrationList']->all();
 
         $post = $migrations['Post'];
@@ -164,7 +165,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testHasOneHasManyFunctionAddedToModel()
     {
-        $parsed = $this->getSampleParsedObject();
+        $parsed = ParsedResult::getSampleParsedObject();
         $models = $parsed['modelList']->all();
 
         $user = $models['User'];
@@ -176,7 +177,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testForeignKeyOverrideInHasOneHasManyAndBelongsTo()
     {
-        $parsed = $this->getSampleParsedObject();
+        $parsed = ParsedResult::getSampleParsedObject();
         $models = $parsed['modelList']->all();
 
         $user = $models['User'];
@@ -188,7 +189,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testHasManyAndBelongsToModelCreationWithOverrides()
     {
-        $parsed = $this->getSampleParsedObject();
+        $parsed = ParsedResult::getSampleParsedObject();
         $models = $parsed['modelList']->all();
 
         $user = $models['User'];
@@ -198,7 +199,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
     public function testPolymorphicRelation()
     {
-        $parsed = $this->getSampleParsedObject();
+        $parsed = ParsedResult::getSampleParsedObject();
         $models = $parsed['modelList']->all();
 
         $user = $models['User'];
@@ -208,55 +209,5 @@ class ParserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($user->hasFunction('images', 'Image', 'mm', 'imageable' ));
         $this->assertTrue($post->hasFunction('images', 'Image', 'mm', 'imageable' ));
         $this->assertTrue($image->hasFunction('imageable', null, 'mt', 'imageable'));
-    }
-
-    private function getSampleParsedObject()
-    {
-        if (is_null($this->parsed))
-        {
-            $this->parsed = $this->getParsedOutput($this->getSampleInput());
-        }
-
-        return $this->parsed;
-    }
-
-    private function getParsedOutput($input)
-    {
-        $p = new Parser(
-            new FieldParser(),
-            new ModelDefinitionParser(),
-            new ModelList(),
-            new MigrationList());
-        return $p->parse($input);
-    }
-
-    private function getSampleInput()
-    {
-        return <<<EOF
-User users; hm Post; btm Role; mm Image imageable; hm Stuff stuffer_id; btm Thumb t_u u_id t_id;
-    id increments
-    username string 50; default "hello world"; nullable;
-    password string 64
-    email string 250
-    type enum admin, moderator, user
-
-Post; mm Image imageable;
-    timestamps
-    title string 250
-    content text
-    rating decimal 5 2
-
-Image
-    timestamps
-
-Role
-    timestamps
-
-Stuff;
-    timestamps
-
-Thumb
-    timestamps
-EOF;
     }
 }
