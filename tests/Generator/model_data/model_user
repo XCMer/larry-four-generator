@@ -1,0 +1,32 @@
+<?php
+
+class User extends Eloquent
+{
+    public $timestamps = false;
+
+    public function posts()
+    {
+        return $this->hasMany('Post');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany('Role');
+    }
+
+    public function images()
+    {
+        return $this->morphMany('Image', 'imageable');
+    }
+
+    public function stuffs()
+    {
+        return $this->hasMany('Stuff', 'stuffer_id');
+    }
+
+    public function thumbs()
+    {
+        return $this->belongsToMany('Thumb', 't_u', 'u_id', 't_id');
+    }
+
+}

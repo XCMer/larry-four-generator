@@ -1,0 +1,9 @@
+<?php
+
+class {{modelName}} extends Eloquent
+{
+    {{primaryKey}}
+    {{timestamps}}
+
+    {{relationalFunctions}}
+}

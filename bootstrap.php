@@ -12,4 +12,5 @@ include SRC_ROOT . 'MigrationList.php';
 include SRC_ROOT . 'Inflect.php';
 include SRC_ROOT . 'Exception/ParseError.php';
 include SRC_ROOT . 'Generator/MigrationGenerator.php';
+include SRC_ROOT . 'Generator/ModelGenerator.php';
 include TEST_ROOT . 'ParsedResult.php';
