@@ -33,8 +33,9 @@ class MigrationGenerator
         // Replace the table name
         $result = str_replace('{{tableName}}', $migration->tableName, $result);
 
-        // Replace the class name
+        // Replace the class name and strip underscores for pivot tables
         $className = 'Create' . ucwords($migration->tableName) . 'Table';
+        $className = str_replace('_', '', $className);
         $result = str_replace('{{className}}', $className, $result);
 
         // Populate the fields
