@@ -1,0 +1,12 @@
+<?php
+
+class Stuff extends Eloquent
+{
+    public $timestamps = true;
+
+    public function user()
+    {
+        return $this->belongsTo('User', 'stuffer_id');
+    }
+
+}

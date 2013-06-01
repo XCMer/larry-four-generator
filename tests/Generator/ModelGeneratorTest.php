@@ -19,6 +19,30 @@ class ModelGeneratorTest extends PHPUnit_Framework_TestCase
         $this->runGeneratedModelTest('User', 'model_user');
     }
 
+    public function testPostModelFile()
+    {
+        $this->runGeneratedModelTest('Post', 'model_post');
+    }
+
+    public function testImageModelFile()
+    {
+        $this->runGeneratedModelTest('Image', 'model_image');
+    }
+
+    public function testRoleModelFile()
+    {
+        $this->runGeneratedModelTest('Role', 'model_role');
+    }
+
+    public function testStuffModelFile()
+    {
+        $this->runGeneratedModelTest('Stuff', 'model_stuff');
+    }
+
+    public function testThumbModelFile()
+    {
+        $this->runGeneratedModelTest('Thumb', 'model_thumb');
+    }
 
     private function runGeneratedModelTest($modelName, $modelFile)
     {

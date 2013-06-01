@@ -1,0 +1,12 @@
+<?php
+
+class Image extends Eloquent
+{
+    public $timestamps = true;
+
+    public function imageable()
+    {
+        return $this->morphTo();
+    }
+
+}
