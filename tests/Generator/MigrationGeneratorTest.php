@@ -9,18 +9,39 @@ use \LarryFour\Generator\MigrationGenerator;
 
 class MigrationGeneratorTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * The output array of the parsed input file
+     * @var array
+     */
     private $parsed = null;
+
+
+    /**
+     * An instance of the migration generator so that it need not be created
+     * again and again
+     * @var [type]
+     */
+    private $migrationGenerator = null;
+
 
     public function testGeneratedMigrationContentsForUserTable()
     {
-        $expected = file_get_contents(__DIR__ . '/data/migration_user');
+        $this->runGeneratedMigrationForTable('User', 'migration_user');
+    }
+
+    private function runGeneratedMigrationForTable($modelName, $migrationFile)
+    {
+        $expected = file_get_contents(__DIR__ . '/data/' . $migrationFile);
         $parsed = $this->getSampleParsedObject();
         $migrations = $parsed['migrationList']->all();
-        $user = $migrations['User'];
+        $table = $migrations[$modelName];
 
-        $generator = new MigrationGenerator();
+        if (is_null($this->migrationGenerator))
+        {
+            $this->migrationGenerator = new MigrationGenerator();
+        }
 
-        $this->assertEquals($expected, $generator->generate($user));
+        $this->assertEquals($expected, $this->migrationGenerator->generate($table));
     }
 
     private function getSampleParsedObject()
