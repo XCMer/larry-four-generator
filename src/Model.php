@@ -29,7 +29,7 @@ class Model
 
     /**
      * List of functions in a model indexed as 'function_name' =>
-     * array('toModel' => , 'type' =>, 'foreignKey' =>)
+     * array('toModel' => , 'type' =>, 'foreignKey' =>, 'pivotTable' =>)
      * @var array
      */
     private $functions = array();
@@ -50,6 +50,16 @@ class Model
         {
             $this->tableName = $tableName;
         }
+    }
+
+
+    /**
+     * Returns all the functions in this model as an array data structure
+     * @return array Functions and info about them that have to go in this model
+     */
+    public function all()
+    {
+        return $this->functions;
     }
 
 
