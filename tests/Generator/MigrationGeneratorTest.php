@@ -109,7 +109,7 @@ User users; hm Post; btm Role; mm Image imageable; hm Stuff stuffer_id; btm Thum
     email string 250
     type enum admin, moderator, user
 
-Post; bt User; mm Image imageable;
+Post; mm Image imageable;
     timestamps
     title string 250
     content text
@@ -121,7 +121,7 @@ Image
 Role
     timestamps
 
-Stuff; bt User;
+Stuff;
     timestamps
 
 Thumb

@@ -89,11 +89,21 @@ class ModelDefinitionParser
 
         // The first part is the relation type while the second part is the
         // related model. We'll throw an error if an invalid relation type is being
-        // specified
+        // specified.
+        //
+        // The special case here is the 'bt' case. This relation cannot be used because
+        // it is implied by the hm or ho relation, and can cause foreign key override problems
+        // with the data structure we're currenlty using. So, we'll raise a separate exception
+        // for this relation
         $relationType = trim($data[0]);
         if (!in_array( $relationType, array('ho', 'hm', 'bt', 'btm', 'mm', 'mo') ))
         {
             throw new ParseError("Invalid relation type: " . $relationType);
+        }
+
+        if ($relationType == 'bt')
+        {
+            throw new ParseError('Belongs to relation should not be explicitly specified in this model. Please specify a hasOne or hasMany relation in the related model "' . trim($data[1]) . '"');
         }
 
         $parsedData = array(

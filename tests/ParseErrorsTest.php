@@ -87,6 +87,15 @@ EOF;
         $this->assertErrorOutput($input, "[Line 2] Decimal field requires two parameters, precision and scale: user decimal 50\n");
     }
 
+    public function testUsingBtRelationThrowsError()
+    {
+        $input = <<<EOF
+User users; hm Post; btm Role roles_user; mm Image imageable; bt Something;
+EOF;
+
+        $this->assertErrorOutput($input, "[Line 1] Belongs to relation should not be explicitly specified in this model. Please specify a hasOne or hasMany relation in the related model \"Something\"\n");
+    }
+
     private function assertErrorOutput($input, $expectedError)
     {
         try {
