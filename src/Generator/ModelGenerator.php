@@ -177,6 +177,18 @@ class ModelGenerator
         // Add in the function name
         $result = str_replace('{{functionName}}', $functionName, $result);
 
+        // If the relation type if mt, then the function has no parameters
+        // So just whip it up here and return, since this is the only odd one
+        // out
+        if ($functionData['relationType'] == 'mt')
+        {
+            return str_replace(
+                '{{functionBody}}',
+                'return $this->morphTo();',
+                $result
+            );
+        }
+
         // Create the function body
         // We begin with:
         // return $this->function('Model'
