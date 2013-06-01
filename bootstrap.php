@@ -10,3 +10,4 @@ include SRC_ROOT . 'ModelList.php';
 include SRC_ROOT . 'MigrationList.php';
 include SRC_ROOT . 'Inflect.php';
 include SRC_ROOT . 'Exception/ParseError.php';
+include SRC_ROOT . 'Generator/MigrationGenerator.php';

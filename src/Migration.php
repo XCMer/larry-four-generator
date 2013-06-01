@@ -35,9 +35,23 @@ class Migration
     }
 
 
+    /**
+     * Adds a new column to the migration
+     * @param array $fieldData The parsed field data
+     */
     public function addColumn($fieldData)
     {
         $this->columns[$fieldData['name']] = $fieldData;
+    }
+
+
+    /**
+     * Returns all the columns of this migration in order
+     * @return array All the columns in this migration
+     */
+    public function all()
+    {
+        return $this->columns;
     }
 
 
