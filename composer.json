@@ -17,5 +17,6 @@
         "psr-0": {
             "Raahul\\LarryFour": "src/"
         }
-    }
+    },
+    "minimum-stability": "dev"
 }
