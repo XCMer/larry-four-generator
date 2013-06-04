@@ -1,4 +1,4 @@
-<?php namespace LarryFour\Generator;
+<?php namespace Raahul\LarryFour\Generator;
 
 class MigrationGenerator
 {
@@ -22,10 +22,10 @@ class MigrationGenerator
     /**
      * Generate the migration file contents from the templates and the migration
      * object provided
-     * @param  \LarryFour\Migration $migration The migration object whose migration file has to be generated
+     * @param  \Raahul\LarryFour\Migration $migration The migration object whose migration file has to be generated
      * @return string                          The migration file contents
      */
-    public function generate(\LarryFour\Migration $migration)
+    public function generate(\Raahul\LarryFour\Migration $migration)
     {
         // Store the template locally
         $result = $this->template;

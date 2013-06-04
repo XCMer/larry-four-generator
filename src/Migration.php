@@ -1,4 +1,4 @@
-<?php namespace LarryFour;
+<?php namespace Raahul\LarryFour;
 
 class Migration
 {
@@ -35,7 +35,7 @@ class Migration
         // not given
         if (!$tableName)
         {
-            $this->tableName = strtolower(\LarryFour\Inflect::pluralize($modelName));
+            $this->tableName = strtolower(\Raahul\LarryFour\Inflect::pluralize($modelName));
         }
         else
         {

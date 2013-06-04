@@ -1,4 +1,4 @@
-<?php namespace LarryFour;
+<?php namespace Raahul\LarryFour;
 
 class Model
 {

@@ -1,4 +1,4 @@
-<?php namespace LarryFour;
+<?php namespace Raahul\LarryFour;
 
 // Source: http://kuwamoto.org/2007/12/17/improved-pluralizing-in-php-actionscript-and-ror/
 // Thanks to http://www.eval.ca/articles/php-pluralize (MIT license)

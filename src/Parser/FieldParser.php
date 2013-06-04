@@ -1,6 +1,6 @@
-<?php namespace LarryFour\Parser;
+<?php namespace Raahul\LarryFour\Parser;
 
-use \LarryFour\Exception\ParseError;
+use \Raahul\LarryFour\Exception\ParseError;
 
 class FieldParser
 {

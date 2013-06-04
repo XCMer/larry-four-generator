@@ -1,30 +1,30 @@
-<?php namespace LarryFour;
+<?php namespace Raahul\LarryFour;
 
-use \LarryFour\Exception\ParseError;
+use \Raahul\LarryFour\Exception\ParseError;
 
 class Parser
 {
     /**
      * Instance of the field parser
-     * @var \LarryFour\Parser\FieldParser
+     * @var \Raahul\LarryFour\Parser\FieldParser
      */
     private $fieldParser;
 
     /**
      * Instance of the model definition parser
-     * @var \LarryFour\Parser\ModelDefinitionParser
+     * @var \Raahul\LarryFour\Parser\ModelDefinitionParser
      */
     private $modelDefinitionParser;
 
     /**
      * Instance of the model list object
-     * @var \LarryFour\ModelList
+     * @var \Raahul\LarryFour\ModelList
      */
     private $modelList;
 
     /**
      * Instance of the migration list object
-     * @var \LarryFour\MigrationList
+     * @var \Raahul\LarryFour\MigrationList
      */
     private $migrationList;
 
@@ -35,10 +35,10 @@ class Parser
     private $relations;
 
 
-    public function __construct(\LarryFour\Parser\FieldParser $fieldParser,
-                    \LarryFour\Parser\ModelDefinitionParser $modelDefinitionParser,
-                    \LarryFour\ModelList $modelList,
-                    \LarryFour\MigrationList $migrationList)
+    public function __construct(\Raahul\LarryFour\Parser\FieldParser $fieldParser,
+                    \Raahul\LarryFour\Parser\ModelDefinitionParser $modelDefinitionParser,
+                    \Raahul\LarryFour\ModelList $modelList,
+                    \Raahul\LarryFour\MigrationList $migrationList)
     {
         $this->fieldParser = $fieldParser;
         $this->modelDefinitionParser = $modelDefinitionParser;

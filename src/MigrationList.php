@@ -1,4 +1,4 @@
-<?php namespace LarryFour;
+<?php namespace Raahul\LarryFour;
 
 /**
  * This class is meant to be used by the parser to keep track
@@ -40,7 +40,7 @@ class MigrationList
      * @param string $modelName  The name of the model
      * @param array  $columnInfo The column data as accepted by the migration function addColumn4
      *
-     * @return \LarryFour\Migration The newly created migration
+     * @return \Raahul\LarryFour\Migration The newly created migration
      */
     public function addColumn($modelName, $columnInfo)
     {

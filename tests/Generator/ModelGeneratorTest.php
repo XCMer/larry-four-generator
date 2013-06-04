@@ -1,15 +1,15 @@
 <?php
 
-use \LarryFour\ModelList;
-use \LarryFour\Generator\ModelGenerator;
-use \LarryFour\Tests\ParsedResult;
+use \Raahul\LarryFour\ModelList;
+use \Raahul\LarryFour\Generator\ModelGenerator;
+use \Raahul\LarryFour\Tests\ParsedResult;
 
 class ModelGeneratorTest extends PHPUnit_Framework_TestCase
 {
     /**
      * An instance of the model generator so that it need not be created
      * again and again
-     * @var \LarryFour\Generator\ModelGenerator
+     * @var \Raahul\LarryFour\Generator\ModelGenerator
      */
     private $modelGenerator = null;
 

@@ -1,12 +1,12 @@
 <?php
 
-use \LarryFour\Parser\FieldParser;
-use \LarryFour\Parser\ModelDefinitionParser;
-use \LarryFour\Parser;
-use \LarryFour\ModelList;
-use \LarryFour\MigrationList;
-use \LarryFour\Exception\ParseError;
-use \LarryFour\Tests\ParsedResult;
+use \Raahul\LarryFour\Parser\FieldParser;
+use \Raahul\LarryFour\Parser\ModelDefinitionParser;
+use \Raahul\LarryFour\Parser;
+use \Raahul\LarryFour\ModelList;
+use \Raahul\LarryFour\MigrationList;
+use \Raahul\LarryFour\Exception\ParseError;
+use \Raahul\LarryFour\Tests\ParsedResult;
 
 class ParseErrorsTest extends PHPUnit_Framework_TestCase
 {

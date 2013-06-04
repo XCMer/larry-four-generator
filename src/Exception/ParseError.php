@@ -1,3 +1,3 @@
-<?php namespace LarryFour\Exception;
+<?php namespace Raahul\LarryFour\Exception;
 
 class ParseError extends \Exception {}

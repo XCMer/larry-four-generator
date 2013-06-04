@@ -1,11 +1,11 @@
-<?php namespace LarryFour\Tests;
+<?php namespace Raahul\LarryFour\Tests;
 
-use \LarryFour\Parser;
-use \LarryFour\Parser\FieldParser;
-use \LarryFour\Parser\ModelDefinitionParser;
-use \LarryFour\ModelList;
-use \LarryFour\MigrationList;
-use \LarryFour\Generator\MigrationGenerator;
+use \Raahul\LarryFour\Parser;
+use \Raahul\LarryFour\Parser\FieldParser;
+use \Raahul\LarryFour\Parser\ModelDefinitionParser;
+use \Raahul\LarryFour\ModelList;
+use \Raahul\LarryFour\MigrationList;
+use \Raahul\LarryFour\Generator\MigrationGenerator;
 
 /**
  * This is a helper class to get the parsed result of a sample input. It's in

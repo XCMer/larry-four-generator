@@ -1,6 +1,6 @@
 <?php
 
-use LarryFour\Parser\ModelDefinitionParser;
+use Raahul\LarryFour\Parser\ModelDefinitionParser;
 
 class ModelDefinitionParserTest extends PHPUnit_Framework_TestCase
 {

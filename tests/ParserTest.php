@@ -1,11 +1,11 @@
 <?php
 
-use \LarryFour\Parser\FieldParser;
-use \LarryFour\Parser\ModelDefinitionParser;
-use \LarryFour\Parser;
-use \LarryFour\ModelList;
-use \LarryFour\MigrationList;
-use \LarryFour\Tests\ParsedResult;
+use \Raahul\LarryFour\Parser\FieldParser;
+use \Raahul\LarryFour\Parser\ModelDefinitionParser;
+use \Raahul\LarryFour\Parser;
+use \Raahul\LarryFour\ModelList;
+use \Raahul\LarryFour\MigrationList;
+use \Raahul\LarryFour\Tests\ParsedResult;
 
 class ParserTest extends PHPUnit_Framework_TestCase
 {
@@ -26,9 +26,9 @@ class ParserTest extends PHPUnit_Framework_TestCase
             ),
             array_keys($models)
         );
-        $this->assertInstanceOf('\LarryFour\Model', $models['User']);
-        $this->assertInstanceOf('\LarryFour\Model', $models['Post']);
-        $this->assertInstanceOf('\LarryFour\Model', $models['Image']);
+        $this->assertInstanceOf('\Raahul\LarryFour\Model', $models['User']);
+        $this->assertInstanceOf('\Raahul\LarryFour\Model', $models['Post']);
+        $this->assertInstanceOf('\Raahul\LarryFour\Model', $models['Image']);
     }
 
     public function testParsingOfModelTableNameOverrides()

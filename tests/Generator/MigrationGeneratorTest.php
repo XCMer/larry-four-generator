@@ -1,12 +1,12 @@
 <?php
 
-use \LarryFour\Parser;
-use \LarryFour\Parser\FieldParser;
-use \LarryFour\Parser\ModelDefinitionParser;
-use \LarryFour\ModelList;
-use \LarryFour\MigrationList;
-use \LarryFour\Generator\MigrationGenerator;
-use \LarryFour\Tests\ParsedResult;
+use \Raahul\LarryFour\Parser;
+use \Raahul\LarryFour\Parser\FieldParser;
+use \Raahul\LarryFour\Parser\ModelDefinitionParser;
+use \Raahul\LarryFour\ModelList;
+use \Raahul\LarryFour\MigrationList;
+use \Raahul\LarryFour\Generator\MigrationGenerator;
+use \Raahul\LarryFour\Tests\ParsedResult;
 
 class MigrationGeneratorTest extends PHPUnit_Framework_TestCase
 {

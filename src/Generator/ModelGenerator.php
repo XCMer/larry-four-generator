@@ -1,4 +1,4 @@
-<?php namespace LarryFour\Generator;
+<?php namespace Raahul\LarryFour\Generator;
 
 class ModelGenerator
 {
@@ -34,7 +34,7 @@ class ModelGenerator
     /**
      * Generate the model file contents from the templates and the model
      * object provided
-     * @param  \LarryFour\Model $model The model object whose model file has to be generated
+     * @param  \Raahul\LarryFour\Model $model The model object whose model file has to be generated
      * @return string                  The model file contents
      */
     public function generate($model)

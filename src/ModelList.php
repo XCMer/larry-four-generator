@@ -1,4 +1,4 @@
-<?php namespace LarryFour;
+<?php namespace Raahul\LarryFour;
 
 /**
  * This class is meant to be used by the parser to keep track
@@ -41,7 +41,7 @@ class ModelList
      * @param string $modelName The name of the model as parsed
      * @param string $tableName The name of the table as if overriden
      *
-     * @return \LarryFour\Model The newly created model
+     * @return \Raahul\LarryFour\Model The newly created model
      */
     public function create($modelName, $tableName)
     {
