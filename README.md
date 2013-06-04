@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/XCMer/larry-four-generator.png?branch=master)](https://travis-ci.org/XCMer/larry-four-generator)
+
 # Larry Four - The Laravel 4 Model & Migration Generator
 
 If you are not already familiar, I released a generator for Laravel called <a href="https://github.com/XCMer/larry-laravel-generator">Larry</a>. This version is intended to work with Laravel 4, while supporting new features like polymorphic relations.
