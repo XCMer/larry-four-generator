@@ -1,5 +1,7 @@
 <?php namespace Raahul\LarryFour;
 
+use \Illuminate\Support\Pluralizer;
+
 class Migration
 {
     /**
@@ -35,7 +37,7 @@ class Migration
         // not given
         if (!$tableName)
         {
-            $this->tableName = strtolower(\Raahul\LarryFour\Inflect::pluralize($modelName));
+            $this->tableName = strtolower(Pluralizer::plural($modelName));
         }
         else
         {

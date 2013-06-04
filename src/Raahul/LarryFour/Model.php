@@ -1,5 +1,7 @@
 <?php namespace Raahul\LarryFour;
 
+use \Illuminate\Support\Pluralizer;
+
 class Model
 {
     /**
@@ -148,7 +150,7 @@ class Model
         // then the function name should be the pluralized version of the related model
         if (in_array( $relationType, array('hm', 'ho', 'btm', 'mm') ))
         {
-            return Inflect::pluralize(strtolower($toModel));
+            return Pluralizer::plural(strtolower($toModel));
         }
 
         // If the relation is belongsTo, then the name of the function is the singular
