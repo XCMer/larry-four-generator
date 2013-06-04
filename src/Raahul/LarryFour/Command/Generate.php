@@ -122,7 +122,7 @@ class Generate extends Command {
         // Generate migrations
         foreach ($migrations as $migration)
         {
-            $filename = date('Y_m_d_His') . '_create_' . $migration->tableName . '_table';
+            $filename = date('Y_m_d_His') . '_create_' . $migration->tableName . '_table.php';
             $this->larryWriter->writeMigration(
                 $this->migrationGenerator->generate($migration),
                 $filename
