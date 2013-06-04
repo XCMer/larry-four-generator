@@ -1,0 +1,21 @@
+{
+    "name": "raahul/larryfour",
+    "description": "A model and migration generator for Laravel 4",
+    "authors": [
+        {
+            "name": "Raahul Seshadri",
+            "email": "raahul@musictypes.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "4.0.x",
+        "illuminate/console": "4.0.x",
+        "illuminate/filesystem": "4.0.x"
+    },
+    "autoload": {
+        "psr-0": {
+            "Raahul\\LarryFour": "src/"
+        }
+    }
+}
