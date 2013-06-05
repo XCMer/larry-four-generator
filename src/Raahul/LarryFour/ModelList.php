@@ -74,4 +74,15 @@ class ModelList
         $this->models[ $inModel ]->addFunction($toModel, $relationType, $foreignKey, $pivotTable);
     }
 
+
+    /**
+     * Returns whether the given model exists
+     * @param  string $modelName The name of the model as parsed
+     * @return bool              If the model exists
+     */
+    public function exists($modelName)
+    {
+        return isset($this->models[ $modelName ]);
+    }
+
 }

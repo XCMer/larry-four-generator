@@ -1,5 +1,7 @@
 <?php namespace Raahul\LarryFour;
 
+use \Raahul\LarryFour\Exception\ParseError;
+
 /**
  * This class is meant to be used by the parser to keep track
  * of migrations added. In contrast to an array, this is better because it
@@ -57,6 +59,12 @@ class MigrationList
      */
     public function addForeignKey($modelName, $fromModel, $foreignKey, $type = 'integer')
     {
+        // First, check if the given model exists, or else throw an error
+        if (!$this->exists($modelName))
+        {
+            throw new ParseError("Model definition for model \"{$modelName}\" not found, but relation to it is defined in model \"{$fromModel}\"");
+        }
+
         // The foreign key is either the one provided, or if it is blank, we'll use what
         // Laravel does by default: lowercasing the fromModel and appending "_id"
         $foreignKey = $foreignKey
@@ -93,4 +101,16 @@ class MigrationList
     {
         return $this->migrations;
     }
+
+
+    /**
+     * Returns whether the given model's migration exists
+     * @param  string $modelName The name of the model as parsed
+     * @return bool              If the model exists
+     */
+    public function exists($modelName)
+    {
+        return isset($this->migrations[ $modelName ]);
+    }
+
 }

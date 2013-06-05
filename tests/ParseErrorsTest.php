@@ -97,6 +97,16 @@ EOF;
         $this->assertErrorOutput($input, "[Line 1] Belongs to relation should not be explicitly specified in this model. Please specify a hasOne or hasMany relation in the related model \"Something\"");
     }
 
+    public function testRelatedModelNotDefinedError()
+    {
+        $input = <<<EOF
+User users; hm Post; ho Profile;
+Post
+EOF;
+
+    $this->assertErrorOutput($input, "Model definition for model \"Profile\" not found, but relation to it is defined in model \"User\"");
+    }
+
     private function assertErrorOutput($input, $expectedError)
     {
         try {
