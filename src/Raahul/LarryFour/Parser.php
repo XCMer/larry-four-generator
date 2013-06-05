@@ -92,7 +92,7 @@ class Parser
                     $this->parseFieldDefinitionLine($line, $currentModel);
                 }
                 catch (ParseError $e) {
-                    throw new ParseError("[Line $currentLine] " . $e->getMessage() ."\n");
+                    throw new ParseError("[Line $currentLine] " . $e->getMessage());
                 }
             }
             else
@@ -103,7 +103,7 @@ class Parser
                     $currentModel = $this->parseModelDefinitionLine($line);
                 }
                 catch (ParseError $e) {
-                    throw new ParseError("[Line $currentLine] " . $e->getMessage() ."\n");
+                    throw new ParseError("[Line $currentLine] " . $e->getMessage());
                 }
             }
         }

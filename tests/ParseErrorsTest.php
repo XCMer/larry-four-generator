@@ -18,7 +18,7 @@ class ParseErrorsTest extends PHPUnit_Framework_TestCase
 User users; hm Post; Role; mm Image imageable;
 EOF;
 
-        $this->assertErrorOutput($input, "[Line 2] Insufficient parameters for relation: Role\n");
+        $this->assertErrorOutput($input, "[Line 2] Insufficient parameters for relation: Role");
     }
 
     public function testValidRelationTypesError()
@@ -27,7 +27,7 @@ EOF;
 User users; hms Post; btm Role; mm Image imageable;
 EOF;
 
-        $this->assertErrorOutput($input, "[Line 1] Invalid relation type: hms\n");
+        $this->assertErrorOutput($input, "[Line 1] Invalid relation type: hms");
     }
 
     public function testTestMandatoryParameterForPolymorphicRelations()
@@ -36,7 +36,7 @@ EOF;
 User users; hm Post; btm Role; mm Image;
 EOF;
 
-        $this->assertErrorOutput($input, "[Line 1] Polymorphic relations require foreign key to be specified: mm Image\n");
+        $this->assertErrorOutput($input, "[Line 1] Polymorphic relations require foreign key to be specified: mm Image");
     }
 
     public function testTestBtmRelationToThrowErrorOnInsufficientParameters()
@@ -45,7 +45,7 @@ EOF;
 User users; hm Post; btm Role roles_user role_id; mm Image imageable;
 EOF;
 
-        $this->assertErrorOutput($input, "[Line 1] Belongs to many relation needs none or both foreign keys present, but found just one: btm Role roles_user role_id\n");
+        $this->assertErrorOutput($input, "[Line 1] Belongs to many relation needs none or both foreign keys present, but found just one: btm Role roles_user role_id");
     }
 
     public function testInvalidFieldTypesThrowError()
@@ -55,7 +55,7 @@ User users; hm Post; btm Role roles_user; mm Image imageable;
     user strings;
 EOF;
 
-        $this->assertErrorOutput($input, "[Line 2] Invalid field type: strings\n");
+        $this->assertErrorOutput($input, "[Line 2] Invalid field type: strings");
     }
 
     public function testInsufficientFieldDataThrowsError()
@@ -65,7 +65,7 @@ User users; hm Post; btm Role roles_user; mm Image imageable;
     user;
 EOF;
 
-        $this->assertErrorOutput($input, "[Line 2] Field does not have type provided: user\n");
+        $this->assertErrorOutput($input, "[Line 2] Field does not have type provided: user");
     }
 
     public function testInvalidFieldModifierThrowsError()
@@ -75,7 +75,7 @@ User users; hm Post; btm Role roles_user; mm Image imageable;
     user string 50; nullis;
 EOF;
 
-        $this->assertErrorOutput($input, "[Line 2] Invalid field modifier: nullis\n");
+        $this->assertErrorOutput($input, "[Line 2] Invalid field modifier: nullis");
     }
 
     public function testInsufficientParametersForDecimalFieldThrowsError()
@@ -85,7 +85,7 @@ User users; hm Post; btm Role roles_user; mm Image imageable;
     user decimal 50;
 EOF;
 
-        $this->assertErrorOutput($input, "[Line 2] Decimal field requires two parameters, precision and scale: user decimal 50\n");
+        $this->assertErrorOutput($input, "[Line 2] Decimal field requires two parameters, precision and scale: user decimal 50");
     }
 
     public function testUsingBtRelationThrowsError()
@@ -94,7 +94,7 @@ EOF;
 User users; hm Post; btm Role roles_user; mm Image imageable; bt Something;
 EOF;
 
-        $this->assertErrorOutput($input, "[Line 1] Belongs to relation should not be explicitly specified in this model. Please specify a hasOne or hasMany relation in the related model \"Something\"\n");
+        $this->assertErrorOutput($input, "[Line 1] Belongs to relation should not be explicitly specified in this model. Please specify a hasOne or hasMany relation in the related model \"Something\"");
     }
 
     private function assertErrorOutput($input, $expectedError)
