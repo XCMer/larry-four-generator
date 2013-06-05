@@ -1,76 +1,291 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <title>Larry Four by XCMer</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <title>Larry Four For Laravel 4 by XCMer</title>
   </head>
-
   <body>
-    <div id="container">
-      <div class="inner">
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Larry Four</h1>
+        <p class="header">Laravel Four Generator</p>
 
-        <header>
-          <h1>Larry Four For Laravel 4</h1>
-          <h2>Laravel Generator For Laravel Four</h2>
-        </header>
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/XCMer/larry-four-generator/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/XCMer/larry-four-generator/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/XCMer/larry-four-generator">View On GitHub</a></li>
+        </ul>
 
-        <section id="downloads" class="clearfix">
-          <a href="https://github.com/XCMer/larry-four-generator/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
-          <a href="https://github.com/XCMer/larry-four-generator/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
-          <a href="https://github.com/XCMer/larry-four-generator" id="view-on-github" class="button"><span>View on GitHub</span></a>
-        </section>
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/XCMer">XCMer</a></p>
 
-        <hr>
 
-        <section id="main_content">
-          <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+      </header>
+      <section>
+        <p>If you are not already familiar, I had released a generator for Laravel called <a href="https://github.com/XCMer/larry-laravel-generator">Larry</a>. This version is intended to work with Laravel 4, while supporting new features like polymorphic relations.</p>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>Larry Four has been re-written from scratch for Laravel 4. We have a better syntax that allows more flexibility and room for adding in more features.</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<h2>
+<a name="a-birds-eye-view" class="anchor" href="#a-birds-eye-view"><span class="octicon octicon-link"></span></a>A bird's eye view</h2>
+
+<p>Here's how an input to larry would look:</p>
+
+<pre><code>User users; hm Post; mo Image imageable; btm Role;
+    id increments
+    timestamps
+    username string 50; default "hello world"; nullable;
+    password string 64
+    email string 250
+    type enum admin, moderator, user
+
+Post; mm Image imageable;
+    timestamps
+    title string 250
+    content text
+    rating decimal 5 2
+
+Image
+    filename string
+
+Role
+    name string
+    level integer
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>In the above case, Larry would do the following:</p>
+
+<ul>
+<li>Create migration files for all the tables required, along with all the columns. Larry automatically figures out which foreign key columns to add, depending on the relations you define. Pivot table in case of belongsToMany relation is also automatically created.</li>
+<li>Create model files for all the models defined. These models also have relational functions automatically defined in them.</li>
+</ul><h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Larry is still in beta. You can visit <a href="https://packagist.org/packages/raahul/larryfour">Packagist</a> to check the latest version of Larry Four. Currently, it is <code>1.0.0beta2</code>.</p>
+
+<p>Here are the steps:</p>
+
+<ul>
+<li>Put the following in your composer.json: <code>"raahul/larryfour": "v1.0.0beta2"</code>
+</li>
+<li>Run <code>composer update</code>
+</li>
+<li>Add <code>'Raahul\LarryFour\LarryFourServiceProvider'</code> to the <code>providers</code> array of <code>app/config/app.php</code>
+</li>
+</ul><h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>Once you've successfully installed Larry Four, its commands should be accessible via <code>artisan</code>. You can always type just <code>php artisan</code> to see all available commands, and those available under the <code>larry</code> namespace.</p>
+
+<p>Larry Four supports three commands.</p>
+
+<pre><code>php artisan larry:generate &lt;input_file&gt;
+</code></pre>
+
+<p>The above command takes <code>&lt;input_file&gt;</code> as the input, and generates models and migrations based on that. You have to provide a filename that exists at the root of your Laravel 4 installation, wherein artisan itself resides.</p>
+
+<p>You cannot provide absolute paths for the input file yet. If you're providing a relative path instead of a filename, then it is relative to Laravel's root directory (or basepath).</p>
+
+<p>There are two other commands:</p>
+
+<pre><code>// Generate only migrations, not models
+php artisan larry:migrations &lt;input_file&gt;
+
+// Generate only models, not migrations
+php artisan larry:models &lt;input_file&gt;
+</code></pre>
+
+<h2>
+<a name="syntax-reference" class="anchor" href="#syntax-reference"><span class="octicon octicon-link"></span></a>Syntax reference</h2>
+
+<p>Create a new text file at the root of your Laravel installation, and you can name it anything you want. The input file basically defines the following things:</p>
+
+<ul>
+<li>All the models that should be created</li>
+<li>The relationship between those models</li>
+<li>The fields inside each of those models</li>
+<li>Modifiers to the fields like default values, nullable/unsigned, and indices</li>
+</ul><p>All the models get an auto-incrementing primary key called <code>id</code>. You can override the name of the primary key. All foreign keys created are unsigned.</p>
+
+<p>Larry provides ways to override foreign key and pivot table names as well. These are optional. By default, Larry follows the same convention as Laravel for naming tables, pivot tables, and foreign keys.</p>
+
+<p>Finally, Larry ignores blank lines (even if they contain whitespace). So, you're free to beautify the looks of your input.</p>
+
+<p>Now, let's begin with the syntax.</p>
 
 <h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+<a name="model-definition" class="anchor" href="#model-definition"><span class="octicon octicon-link"></span></a>Model definition</h3>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<p>Model definition is how you tell Larry about a new model that has to be created. Since fields need a model to be added to, a model definition will be the first logical line of your input file.</p>
+
+<p>When defining a new model, the line <strong>should not</strong> be indented by any amount of whitespace.</p>
+
+<p>The most simple model definition would look like this:</p>
+
+<pre><code>User
+</code></pre>
+
+<p>All models will automatically get an <code>id</code> field of type <code>increments</code>. Apart from just defining the model, you can also define relations between models on this line.</p>
+
+<pre><code>User users; hm Post; mo Image imageable; btm Role;
+</code></pre>
+
+<p>In the above case, we specify the relation that the user has with the other models. The types of the relations supported are:</p>
+
+<pre><code>hm: hasMany
+ho: hasOne
+btm: belongToMany
+mm: morphMany
+mo: morphOne
+</code></pre>
+
+<p>Notice that you can't specify <code>belongsTo</code> and <code>morphTo</code> relations. They are added automatically to the concerned model when their inverses, <code>hasMany, hasOne, morphMany, morphOne</code>, are specified in a related model.</p>
+
+<h4>
+<a name="semicolons" class="anchor" href="#semicolons"><span class="octicon octicon-link"></span></a>Semicolons</h4>
+
+<p>When defining related models, each definition is delimited by a semicolon. The final semicolon is optional.</p>
+
+<h4>
+<a name="overriding-table-name" class="anchor" href="#overriding-table-name"><span class="octicon octicon-link"></span></a>Overriding table name</h4>
+
+<p>You can override the table name of the current model by simply adding it after the model name.</p>
+
+<pre><code>User my_users; hm Post
+</code></pre>
+
+<p>The generated model and migration will take this into account.</p>
+
+<h4>
+<a name="overriding-foreign-key-and-pivot-table-names" class="anchor" href="#overriding-foreign-key-and-pivot-table-names"><span class="octicon octicon-link"></span></a>Overriding foreign key and pivot table names</h4>
+
+<p>While specifying relations above, you can override the foreign key used. This can be done as:</p>
+
+<pre><code>User; hm Post my_user_id;
+</code></pre>
+
+<p>In the above case, the foreign key <code>my_user_id</code> will be used instead of the conventional <code>user_id</code>. Larry takes care of the naming in the migrations, as well as overriding the default foreign key in the model's relation function.</p>
+
+<p>In case of <code>belongsToMany</code>, you can override the pivot table name:</p>
+
+<pre><code>// pivot table will be named "r_u" instead of the
+// conventional role_user
+User; btm Role r_u;
+</code></pre>
+
+<p>And also the foreign keys inside the pivot table:</p>
+
+<pre><code>// foreign keys are named "u_id" &amp; "r_id" instead of
+// the conventional "user_id" &amp; "role_id"
+User; btm Role r_u u_id r_id;
+</code></pre>
+
+<p>For polymorphic relations (<code>morphOne</code> and <code>morphMany</code>), it is mandatory to specify a second paramater to the relation, indicating the name of the polymorphic function:</p>
+
+<pre><code>User; mm Image imageable;
+</code></pre>
 
 <h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+<a name="field-definition" class="anchor" href="#field-definition"><span class="octicon octicon-link"></span></a>Field definition</h3>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>After you define a model, you need to define fields for it.</p>
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<pre><code>User users; hm Post; mo Image imageable;
+    id increments
+    timestamps
+    username string 50; default "hello world"; nullable;
+    password string 64
+    email string 250
+    type enum admin, moderator, user
+</code></pre>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>Looking above, you'll get a good idea of how fields are defined. The syntax is as follows:</p>
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+<pre><code>&lt;field_name&gt; &lt;field_type&gt; &lt;field_parameters&gt;; &lt;field_modifier&gt;; &lt;field_modifier&gt; ...
+</code></pre>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-        </section>
+<ul>
+<li>The <code>&lt;field_name&gt;</code> is simply the column name.</li>
+<li>The <code>&lt;field_type&gt;</code> is any of the field types supported by Laravel.</li>
+<li>
+<code>&lt;field_parameters&gt;</code> are additional parameters to a field function, like length of a string.</li>
+<li>
+<code>&lt;field_modifier&gt;</code> includes default, nullable, unsigned , and indices. Multiple field modifiers can be specified for a field.</li>
+</ul><p><strong>Below are certain points to note:</strong></p>
 
-        <footer>
-          Larry Four For Laravel 4 is maintained by <a href="https://github.com/XCMer">XCMer</a><br>
-          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
-        </footer>
+<p>The <code>increments</code> field is optional, and you should have a need to specify it only if you want your auto-incrementing field to be named differently from <code>id</code>.</p>
 
-        
-      </div>
+<p>The <code>timestamps</code> field is special, for it has no field name. By default, timestamps are disabled in all the models, and migrations don't create columns for them. By adding <code>timestamps</code> as a field, you enable it for that model, and the migration will contain the necessary columns.</p>
+
+<p>Another field that has a different syntactical nuance is the <code>enum</code> field. The parameters to the enum fields are separated by commas. They may or may not be individually enclosed in quotes, like:</p>
+
+<pre><code>type enum "admin", "moderator", "user"
+OR
+type enum admin, moderator, user
+</code></pre>
+
+<p>Other types work as expected, and have syntax similar to the <code>string</code> type you see above.</p>
+
+<p>The following field types are supported:</p>
+
+<pre><code>increments
+string
+integer
+bigInteger
+smallInteger
+float
+decimal
+boolean
+date
+dateTime
+time
+timestamp
+text
+binary
+enum
+</code></pre>
+
+<p>And the following field modifiers are supported:</p>
+
+<pre><code>default "value"
+nullable
+unsigned
+primary
+fulltext
+unique
+index
+</code></pre>
+
+<h2>
+<a name="error-handling" class="anchor" href="#error-handling"><span class="octicon octicon-link"></span></a>Error handling</h2>
+
+<p>Larry Four has an improved error handling mechanism. If there are syntax errors in your input file, you will be notified about it along with the line number. The error will tell you exactly what's wrong in plain English.</p>
+
+<p>Currently, Larry can detect the following errors:</p>
+
+<ul>
+<li>Typo in relationship types (typing <code>hms</code> instead of <code>hm</code> will yield an error)</li>
+<li>Insufficient parameters to relationships or field definitions</li>
+<li>Non-existance of a model that was specified as related in another model</li>
+<li>Invalid field types</li>
+</ul><h2>
+<a name="testing" class="anchor" href="#testing"><span class="octicon octicon-link"></span></a>Testing</h2>
+
+<p>The repo contains PHPUnit tests. This should keep the bugs out and also expedite feature releases.</p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
     </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
   </body>
 </html>
