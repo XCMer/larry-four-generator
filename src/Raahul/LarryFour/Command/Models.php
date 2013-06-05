@@ -2,33 +2,30 @@
 
 use \Raahul\LarryFour\Command\BaseCommand;
 
-class Generate extends BaseCommand {
+class Models extends BaseCommand {
 
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'larry:generate';
+    protected $name = 'larry:models';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate model and migration files from an intuitive text input';
+    protected $description = 'Generate only model files from a Larry compatible input';
 
     /**
-     * Execute this command, generating both models and migrations
+     * Execute this command, generating only models
      *
      * @param array $parsed An array of ModelList and MigrationList
      * @return void
      */
     protected function runCommand($parsed)
     {
-        // Generate migrations
-        $this->generateMigrations($parsed['migrationList']->all());
-
         // Generate models
         $this->generateModels($parsed['modelList']->all());
     }

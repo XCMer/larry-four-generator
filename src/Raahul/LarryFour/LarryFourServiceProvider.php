@@ -2,6 +2,8 @@
 
 use Illuminate\Support\ServiceProvider;
 use \Raahul\LarryFour\Command\Generate;
+use \Raahul\LarryFour\Command\Models;
+use \Raahul\LarryFour\Command\Migrations;
 
 class LarryFourServiceProvider extends ServiceProvider {
 
@@ -29,11 +31,24 @@ class LarryFourServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
+		// Initialize the generate command
 		$this->app['larry.generate'] = $this->app->share(function($app) {
 			return new Generate;
 		});
 
+		// Initialize the models command
+		$this->app['larry.models'] = $this->app->share(function($app) {
+			return new Models;
+		});
+
+		// Initialize the migrations command
+		$this->app['larry.migrations'] = $this->app->share(function($app) {
+			return new Migrations;
+		});
+
 		$this->commands('larry.generate');
+		$this->commands('larry.models');
+		$this->commands('larry.migrations');
 	}
 
 	/**

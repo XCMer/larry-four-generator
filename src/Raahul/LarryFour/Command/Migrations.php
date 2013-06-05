@@ -2,24 +2,24 @@
 
 use \Raahul\LarryFour\Command\BaseCommand;
 
-class Generate extends BaseCommand {
+class Migrations extends BaseCommand {
 
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'larry:generate';
+    protected $name = 'larry:migrations';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate model and migration files from an intuitive text input';
+    protected $description = 'Generate only migration files from a Larry compatible input';
 
     /**
-     * Execute this command, generating both models and migrations
+     * Execute this command, generating only migrations
      *
      * @param array $parsed An array of ModelList and MigrationList
      * @return void
@@ -28,9 +28,6 @@ class Generate extends BaseCommand {
     {
         // Generate migrations
         $this->generateMigrations($parsed['migrationList']->all());
-
-        // Generate models
-        $this->generateModels($parsed['modelList']->all());
     }
 
 }
