@@ -27,6 +27,16 @@ class MigrationList
 
 
     /**
+     * Sets the softDeletes true for the table belonging to the given model
+     * @param string $modelName The name of the model
+     */
+    public function setSoftDeletes($modelName)
+    {
+        $this->migrations[$modelName]->softDeletes = true;
+    }
+
+
+    /**
      * Sets the primary key for the table belonging to the given model
      * @param string $modelName  The name of the model
      * @param string $primaryKey The name of the primary key

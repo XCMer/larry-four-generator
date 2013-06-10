@@ -60,12 +60,14 @@ Post; mm Image imageable;
 
 Image
     timestamps
+    softDeletes
 
 Role
     timestamps
 
 Stuff;
     timestamps
+    softDeletes
 
 Thumb
     timestamps

@@ -15,6 +15,7 @@ class CreateStuffsTable extends Migration {
             $table->increments('id');
             $table->integer('stuffer_id')->unsigned();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

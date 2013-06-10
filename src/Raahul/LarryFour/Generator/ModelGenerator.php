@@ -48,6 +48,9 @@ class ModelGenerator
         // Add in the timestamps
         $result = $this->addTimestampsIfNeeded($result, $model->timestamps);
 
+        // Add in the softDeletes
+        $result = $this->addSoftDeletesIfNeeded($result, $model->softDeletes);
+
         // Add in the primary key if needed
         $result = $this->addPrimaryKeyIfNeeded($result, $model->primaryKey);
 
@@ -105,6 +108,33 @@ class ModelGenerator
             $t,
             $modelFileContents
         );
+    }
+
+
+    /**
+     * Given the model file contents, put in the softDelete in the appropriate
+     * location if needed
+     * @param  string  $modelFileContents The contents of the model file
+     * @param  boolean $timestamps        Whether softDelete is needed
+     * @return string                     The updated model file contents
+     */
+    private function addSoftDeletesIfNeeded($modelFileContents, $softDeletes)
+    {
+        // If softDeletes is enabled, add in the line to enable it, else remove
+        // the tag. We set this only when true
+        if ($softDeletes)
+        {
+            return str_replace('{{softDeletes}}',
+                "protected \$softDelete = true;",
+                $modelFileContents
+            );
+        }
+
+        // Else, add in the primary key line overriding the defaults
+        else
+        {
+            return str_replace("    {{softDeletes}}\n", '', $modelFileContents);
+        }
     }
 
 

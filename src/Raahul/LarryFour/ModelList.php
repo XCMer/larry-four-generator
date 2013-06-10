@@ -26,6 +26,16 @@ class ModelList
 
 
     /**
+     * Sets the softDeletes true for given model
+     * @param string $modelName The name of the model
+     */
+    public function setSoftDeletes($modelName)
+    {
+        $this->models[$modelName]->softDeletes = true;
+    }
+
+
+    /**
      * Sets the primary key for given model
      * @param string $modelName  The name of the model
      * @param string $primaryKey The primary key name

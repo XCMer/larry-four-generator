@@ -23,6 +23,12 @@ class Model
     public $timestamps = false;
 
     /**
+     * The softDeletes parameter which is false by default
+     * @var boolean
+     */
+    public $softDeletes = false;
+
+    /**
      * The primary key column name that is an integer auto increment. It is
      * called 'id' by default.
      * @var string

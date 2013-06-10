@@ -65,6 +65,18 @@ class MigrationGenerator
             );
         }
 
+        // See if softDeletes is present. If yes, add it in too.
+        if ($migration->softDeletes)
+        {
+            $result = $this->addFieldLine($result,
+                $this->getFieldLine(array(
+                    'name' => '', // softDeletes has no field name
+                    'type' => 'softDeletes',
+                    'parameters' => array()
+                ))
+            );
+        }
+
         // Remove the final fields tag
         $result = $this->removeTrailingFieldsTag($result);
 
@@ -81,12 +93,12 @@ class MigrationGenerator
      */
     private function getFieldLine($fieldData)
     {
-        // Handling for timestamps
-        // Timestamps don't have field names, so we have to intercept it first. If timestamps
-        // are present, simply return: $table->timestamps();
-        if ($fieldData['type'] == 'timestamps')
+        // Handling for timestamps and softDeletes
+        // They don't have field names, so we have to intercept it first. We simply return the
+        // timestamps function or the softDeletes function without parameters
+        if ( in_array($fieldData['type'], array('timestamps', 'softDeletes')) )
         {
-            return '$table->timestamps();';
+            return "\$table->{$fieldData['type']}();";
         }
 
         // The beginning part of the definition of a field. A field may or may not have

@@ -3,6 +3,7 @@
 class Stuff extends Eloquent
 {
     public $timestamps = true;
+    protected $softDelete = true;
 
     public function user()
     {

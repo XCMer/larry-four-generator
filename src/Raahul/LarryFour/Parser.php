@@ -172,6 +172,14 @@ class Parser
             return;
         }
 
+        // Check if the field is softDeletes
+        if ($parsed['type'] == 'softDeletes')
+        {
+            $this->modelList->setSoftDeletes($model);
+            $this->migrationList->setSoftDeletes($model);
+            return;
+        }
+
         // Check if field type is increments
         if ($parsed['type'] == 'increments')
         {
