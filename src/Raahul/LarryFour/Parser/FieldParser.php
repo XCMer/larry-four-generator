@@ -129,11 +129,11 @@ class FieldParser
         //   which is why we're keeping it unmodified for now
         $data = explode(" ", $fieldSegment, 3);
 
-        // See if the field is that of timestamps
-        if (strtolower($data[0]) == 'timestamps')
+        // See if the field is that of timestamps or softDeletes
+        if ( in_array( $data[0], array('timestamps', 'softDeletes') ) )
         {
             return array(
-                'type' => 'timestamps'
+                'type' => $data[0]
             );
         }
 

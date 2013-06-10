@@ -24,6 +24,13 @@ class FieldParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('timestamps', $parsed['type']);
     }
 
+    public function testSoftDeletes()
+    {
+        $parsed = $this->getParsedResults("softDeletes");
+
+        $this->assertEquals('softDeletes', $parsed['type']);
+    }
+
     public function testParameterizedField()
     {
         $parsed = $this->getParsedResults("username string 50");
