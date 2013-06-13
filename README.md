@@ -53,7 +53,7 @@ Here are the steps:
 
 Once you've successfully installed Larry Four, its commands should be accessible via `artisan`. You can always type just `php artisan` to see all available commands, and those available under the `larry` namespace.
 
-Larry Four supports four commands.
+Larry Four supports **four commands.**
 
     php artisan larry:generate <input_file>
 
@@ -84,7 +84,7 @@ The tables that Larry processes can be altered by specifying the `only` and `exc
     php artisan larry:fromdb --only=users,posts
 
     // This will process all tables except users and posts
-    php artisan larry:fromdb --except=users,
+    php artisan larry:fromdb --except=users,posts
 
 
 Again, you'll get to confirm your selection before the migrations are generated.
