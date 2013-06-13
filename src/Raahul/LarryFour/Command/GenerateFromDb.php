@@ -271,9 +271,7 @@ class GenerateFromDb extends Command {
      */
     protected function getArguments()
     {
-        return array(
-            array('filename', InputArgument::OPTIONAL, 'Name of the input file.'),
-        );
+        return array();
     }
 
 
