@@ -115,6 +115,10 @@ class GenerateFromDb extends Command {
         throw new \Exception("The runCommand function has to be overriden.");
     }
 
+
+    /**
+     * Verify if the database that we're using is supported by Larry
+     */
     protected function verifyDriver()
     {
         $driver = DB::connection()->getPdo()->getAttribute(\PDO::ATTR_DRIVER_NAME);
@@ -125,6 +129,11 @@ class GenerateFromDb extends Command {
         }
     }
 
+
+    /**
+     * Get an array of tables that will have to be processed in the end
+     * @return array List of table names
+     */
     protected function getAllTablesToBeProcessed()
     {
         // Get all the tables from the database
@@ -182,6 +191,11 @@ class GenerateFromDb extends Command {
         }
     }
 
+
+    /**
+     * Get the name of the selected database
+     * @return string Database name
+     */
     protected function getDbName()
     {
         $select = DB::select('SELECT database() as dbname');
@@ -189,6 +203,12 @@ class GenerateFromDb extends Command {
         return $select[0]->dbname;
     }
 
+
+    /**
+     * Get all the tables present in the database
+     * @param  string $dbname The name of the database
+     * @return array          An array of table names present
+     */
     protected function getAllTables($dbname)
     {
         $tables = array();
@@ -203,17 +223,28 @@ class GenerateFromDb extends Command {
         return $tables;
     }
 
+
+    /**
+     * Get the tables marked by the --only parameters, if any
+     * @return array An array of table names marked by --only parameter
+     */
     protected function getOnlyTables()
     {
         $onlyTables = explode(",", $this->option('only'));
         return array_filter( array_map('trim', $onlyTables) );
     }
 
+
+    /**
+     * Get the tables marked by the --except parameters, if any
+     * @return array An array of table names marked by --except parameter
+     */
     protected function getExceptTables()
     {
         $exceptTables = explode(",", $this->option('except'));
         return array_filter( array_map('trim', $exceptTables) );
     }
+
 
     /**
      * Generates all the migrations, given a list of migrations
@@ -232,6 +263,7 @@ class GenerateFromDb extends Command {
         }
     }
 
+
     /**
      * Get the console command arguments.
      *
@@ -243,6 +275,7 @@ class GenerateFromDb extends Command {
             array('filename', InputArgument::OPTIONAL, 'Name of the input file.'),
         );
     }
+
 
     /**
      * Get the console command options.
