@@ -33,6 +33,12 @@ class DbParser
     }
 
 
+    /**
+     * For each table provided, parse it and add them to the migrationList. This function
+     * can be called multiple times and it will keep adding tables to the same migrationList
+     * @param  array  $tables An associative array of table name and an array of its columns
+     * @return MigrationList  The LarryFour migrationList object
+     */
     public function parse($tables)
     {
         foreach ($tables as $tableName => $columns)
@@ -44,6 +50,12 @@ class DbParser
     }
 
 
+    /**
+     * For a given table, generate the migration object with the appropriate
+     * parameters
+     * @param  string $tableName The name of the table
+     * @param  array  $columns   An array of SchemaExtractor Column objects
+     */
     private function createTableMigration($tableName, $columns)
     {
         // Get the parsed columns
@@ -83,6 +95,12 @@ class DbParser
     }
 
 
+    /**
+     * Given an mysql data type, return the laravel SchemaBuilder name for the
+     * same
+     * @param  Column $column The column object
+     * @return string         The type of the column as denoted in Laravel
+     */
     private function getLaravelColumnType($column)
     {
         // Special handling for integers that can be primary keys
@@ -117,6 +135,14 @@ class DbParser
         );
     }
 
+
+    /**
+     * Get the column parameters as it should be provided in Laravel, since some columns
+     * don't have parameters specified in Laravel even though in the table, they do
+     * @param  array  $parameters An array of parameters to the column
+     * @param  string $type       The type of the column
+     * @return array              Either the parameters or a blank array
+     */
     private function getLaravelColumnParameters($parameters, $type)
     {
         // Integers floats, and booleans don't have parameters
