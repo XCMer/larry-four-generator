@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/XCMer/larry-four-generator.png?branch=master)](https://travis-ci.org/XCMer/larry-four-generator)
 
-**Current Version:** 1.0.0beta2
+**Current Version:** 1.0.0beta3
 
 If you are not already familiar, I had released a generator for Laravel called <a href="https://github.com/XCMer/larry-laravel-generator">Larry</a>. This version is intended to work with Laravel 4, while supporting new features like polymorphic relations.
 
@@ -41,11 +41,11 @@ In the above case, Larry would do the following:
 
 ## Installation
 
-Larry is still in beta. You can visit <a href="https://packagist.org/packages/raahul/larryfour">Packagist</a> to check the latest version of Larry Four. Currently, it is `1.0.0beta2`.
+Larry is still in beta. You can visit <a href="https://packagist.org/packages/raahul/larryfour">Packagist</a> to check the latest version of Larry Four. Currently, it is `1.0.0beta3`.
 
 Here are the steps:
 
-- Put the following in your composer.json: `"raahul/larryfour": "v1.0.0beta2"`
+- Put the following in your composer.json: `"raahul/larryfour": "v1.0.0beta3"`
 - Run `composer update`
 - Add `'Raahul\LarryFour\LarryFourServiceProvider'` to the `providers` array of `app/config/app.php`
 
@@ -53,7 +53,7 @@ Here are the steps:
 
 Once you've successfully installed Larry Four, its commands should be accessible via `artisan`. You can always type just `php artisan` to see all available commands, and those available under the `larry` namespace.
 
-Larry Four supports three commands.
+Larry Four supports four commands.
 
     php artisan larry:generate <input_file>
 
@@ -68,6 +68,31 @@ There are two other commands:
 
     // Generate only models, not migrations
     php artisan larry:models <input_file>
+
+
+### Generating migrations from existing tables
+
+The fourth command is a bit different, since it allows you to generate migrations from existing tables. Use it as follows:
+
+    php artisan larry:fromdb
+
+By default, it will pick up all the tables in the database (except the Laravel migration table). Larry Four will always show you a list of tables that will be processed and ask you for a confirmation.
+
+The tables that Larry processes can be altered by specifying the `only` and `except` options to the command.
+
+    // This will process only the tables 'users' and 'posts'
+    php artisan larry:fromdb --only=users,posts
+
+    // This will process all tables except users and posts
+    php artisan larry:fromdb --except=users,
+
+
+Again, you'll get to confirm your selection before the migrations are generated.
+
+Larry Four is intelligent, in that it can distinguish booleans from other tinyints, and increments from a normal unsigned integer.
+
+Be aware that your tables need to have a integer primary key. If it is not found, the migration would automatically contain an `id` field.
+
 
 ## Syntax reference
 
@@ -160,6 +185,7 @@ After you define a model, you need to define fields for it.
         password string 64
         email string 250
         type enum admin, moderator, user
+        softDeletes
 
 Looking above, you'll get a good idea of how fields are defined. The syntax is as follows:
 
@@ -174,7 +200,7 @@ Looking above, you'll get a good idea of how fields are defined. The syntax is a
 
 The `increments` field is optional, and you should have a need to specify it only if you want your auto-incrementing field to be named differently from `id`.
 
-The `timestamps` field is special, for it has no field name. By default, timestamps are disabled in all the models, and migrations don't create columns for them. By adding `timestamps` as a field, you enable it for that model, and the migration will contain the necessary columns.
+The `timestamps` and `softDeletes` fields are special, for they have no field name. By default, timestamps and softDeletes are disabled in all the models, and migrations don't create columns for them. By adding either of them as a field, you enable them for that model, and the migration will contain the necessary columns.
 
 Another field that has a different syntactical nuance is the `enum` field. The parameters to the enum fields are separated by commas. They may or may not be individually enclosed in quotes, like:
 
@@ -197,10 +223,11 @@ The following field types are supported:
     date
     dateTime
     time
-    timestamp
+    timestamp (not to be confused with timestamp**s**)
     text
     binary
     enum
+    softDeletes
 
 And the following field modifiers are supported:
 
