@@ -12,7 +12,7 @@
         "illuminate/support": "4.0.x",
         "illuminate/console": "4.0.x",
         "illuminate/filesystem": "4.0.x",
-        "raahul/schema-extractor": "dev-master"
+        "raahul/schema-extractor": "1.x"
     },
     "autoload": {
         "psr-0": {
