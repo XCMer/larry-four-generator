@@ -34,6 +34,8 @@
 
 <p>Larry Four has been re-written from scratch for Laravel 4. We have a better syntax that allows more flexibility and room for adding in more features.</p>
 
+<p><strong>Current Version:</strong> 1.0.0beta3</p>
+
 <h2>
 <a name="a-birds-eye-view" class="anchor" href="#a-birds-eye-view"><span class="octicon octicon-link"></span></a>A bird's eye view</h2>
 
@@ -69,12 +71,12 @@ Role
 </ul><h2>
 <a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
 
-<p>Larry is still in beta. You can visit <a href="https://packagist.org/packages/raahul/larryfour">Packagist</a> to check the latest version of Larry Four. Currently, it is <code>1.0.0beta2</code>.</p>
+<p>Larry is still in beta. You can visit <a href="https://packagist.org/packages/raahul/larryfour">Packagist</a> to check the latest version of Larry Four. Currently, it is <code>1.0.0beta3</code>.</p>
 
 <p>Here are the steps:</p>
 
 <ul>
-<li>Put the following in your composer.json: <code>"raahul/larryfour": "v1.0.0beta2"</code>
+<li>Put the following in your composer.json: <code>"raahul/larryfour": "v1.0.0beta3"</code>
 </li>
 <li>Run <code>composer update</code>
 </li>
@@ -85,7 +87,7 @@ Role
 
 <p>Once you've successfully installed Larry Four, its commands should be accessible via <code>artisan</code>. You can always type just <code>php artisan</code> to see all available commands, and those available under the <code>larry</code> namespace.</p>
 
-<p>Larry Four supports three commands.</p>
+<p>Larry Four supports <strong>four commands.</strong></p>
 
 <pre><code>php artisan larry:generate &lt;input_file&gt;
 </code></pre>
@@ -102,6 +104,31 @@ php artisan larry:migrations &lt;input_file&gt;
 // Generate only models, not migrations
 php artisan larry:models &lt;input_file&gt;
 </code></pre>
+
+<h3>
+<a name="generating-migrations-from-existing-tables" class="anchor" href="#generating-migrations-from-existing-tables"><span class="octicon octicon-link"></span></a>Generating migrations from existing tables</h3>
+
+<p>The fourth command is a bit different, since it allows you to generate migrations from existing tables. Use it as follows:</p>
+
+<pre><code>php artisan larry:fromdb
+</code></pre>
+
+<p>By default, it will pick up all the tables in the database (except the Laravel migration table). Larry Four will always show you a list of tables that will be processed and ask you for a confirmation.</p>
+
+<p>The tables that Larry processes can be altered by specifying the <code>only</code> and <code>except</code> options to the command.</p>
+
+<pre><code>// This will process only the tables 'users' and 'posts'
+php artisan larry:fromdb --only=users,posts
+
+// This will process all tables except users and posts
+php artisan larry:fromdb --except=users,posts
+</code></pre>
+
+<p>Again, you'll get to confirm your selection before the migrations are generated.</p>
+
+<p>Larry Four is intelligent, in that it can distinguish booleans from other tinyints, and increments from a normal unsigned integer.</p>
+
+<p>Be aware that your tables need to have a integer primary key. If it is not found, the migration would automatically contain an <code>id</code> field.</p>
 
 <h2>
 <a name="syntax-reference" class="anchor" href="#syntax-reference"><span class="octicon octicon-link"></span></a>Syntax reference</h2>
@@ -205,6 +232,7 @@ User; btm Role r_u u_id r_id;
     password string 64
     email string 250
     type enum admin, moderator, user
+    softDeletes
 </code></pre>
 
 <p>Looking above, you'll get a good idea of how fields are defined. The syntax is as follows:</p>
@@ -223,7 +251,7 @@ User; btm Role r_u u_id r_id;
 
 <p>The <code>increments</code> field is optional, and you should have a need to specify it only if you want your auto-incrementing field to be named differently from <code>id</code>.</p>
 
-<p>The <code>timestamps</code> field is special, for it has no field name. By default, timestamps are disabled in all the models, and migrations don't create columns for them. By adding <code>timestamps</code> as a field, you enable it for that model, and the migration will contain the necessary columns.</p>
+<p>The <code>timestamps</code> and <code>softDeletes</code> fields are special, for they have no field name. By default, timestamps and softDeletes are disabled in all the models, and migrations don't create columns for them. By adding either of them as a field, you enable them for that model, and the migration will contain the necessary columns.</p>
 
 <p>Another field that has a different syntactical nuance is the <code>enum</code> field. The parameters to the enum fields are separated by commas. They may or may not be individually enclosed in quotes, like:</p>
 
@@ -247,10 +275,11 @@ boolean
 date
 dateTime
 time
-timestamp
+timestamp (not to be confused with timestamp**s**)
 text
 binary
 enum
+softDeletes
 </code></pre>
 
 <p>And the following field modifiers are supported:</p>
