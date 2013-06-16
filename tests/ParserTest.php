@@ -31,6 +31,27 @@ class ParserTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Raahul\LarryFour\Model', $models['Image']);
     }
 
+    public function testPresenceOfMigrations()
+    {
+        $parsed = ParsedResult::getSampleParsedObject();
+        $migrations = $parsed['migrationList']->all();
+
+        $this->assertEquals(
+            array(
+                'User',
+                'Post',
+                'Image',
+                'Role',
+                'Stuff',
+                'Thumb',
+                'my_great_table',
+                'role_user',
+                't_u'
+            ),
+            array_keys($migrations)
+        );
+    }
+
     public function testParsingOfModelTableNameOverrides()
     {
         $parsed = ParsedResult::getSampleParsedObject();

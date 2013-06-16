@@ -71,6 +71,10 @@ Stuff;
 
 Thumb
     timestamps
+
+table my_great_table
+    timestamps
+    softDeletes
 EOF;
     }
 }
