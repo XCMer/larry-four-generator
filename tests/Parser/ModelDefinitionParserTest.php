@@ -9,6 +9,7 @@ class ModelDefinitionParserTest extends PHPUnit_Framework_TestCase
         $parsed = $this->getParsedResults("User");
 
         $this->assertEquals('User', $parsed['modelName']);
+        $this->assertEquals('model', $parsed['type']);
     }
 
     public function testParsingModelTableNameOverride()
@@ -17,6 +18,7 @@ class ModelDefinitionParserTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('User', $parsed['modelName']);
         $this->assertEquals('users', $parsed['tableName']);
+        $this->assertEquals('model', $parsed['type']);
     }
 
     public function testParsingModelRelations()
@@ -57,6 +59,15 @@ class ModelDefinitionParserTest extends PHPUnit_Framework_TestCase
             'foreignKey' => array('user_id', 'group_id'),
             'pivotTable' => 'groups_users'
         ), $parsed['relations'][1]);
+    }
+
+    public function testTableDefinition()
+    {
+        $parsed = $this->getParsedResults("table hello_world");
+
+        $this->assertEquals('hello_world', $parsed['tableName']);
+        $this->assertEquals('', $parsed['modelName']);
+        $this->assertEquals('table', $parsed['type']);
     }
 
     private function getParsedResults($line)

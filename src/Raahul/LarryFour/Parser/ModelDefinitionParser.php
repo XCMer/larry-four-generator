@@ -46,8 +46,9 @@ class ModelDefinitionParser
 
 
     /**
-     * Parses the first segment of the model definition to get the model name
-     * and the table name override if any
+     * Parses the first segment of the model/table definition to get the model name
+     * and the table name override if any, while also checking if this is the
+     * definition of an orphan table
      * @param  string $segment The first segment of the model definition
      * @return array           An array containing the model and table name
      */
@@ -61,12 +62,34 @@ class ModelDefinitionParser
             throw new ParseError("Model name cannot be blank");
         }
 
-        $modelName = $data[0];
-        $tableName = isset($data[1]) ? $data[1] : '';
+        // If the first part is "table", then this is a definition for an orphan table
+        if ($data[0] == 'table')
+        {
+            // In this case, it is required for the table name to be given
+            $tableName = isset($data[1]) ? $data[1] : '';
+            if (!$tableName)
+            {
+                throw new ParseError("Table name not given for table definition");
+            }
+
+            // The model name is blank
+            $modelName = '';
+
+            // The type is table
+            $type = 'table';
+        }
+        // Else, it is a normal model definition
+        else
+        {
+            $modelName = $data[0];
+            $tableName = isset($data[1]) ? $data[1] : '';
+            $type = 'model';
+        }
 
         return array(
             'modelName' => $modelName,
-            'tableName' => $tableName
+            'tableName' => $tableName,
+            'type' => $type
         );
     }
 
