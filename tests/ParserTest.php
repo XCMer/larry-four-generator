@@ -52,6 +52,22 @@ class ParserTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testFieldsInMigrationOfCustomTable()
+    {
+        $parsed = ParsedResult::getSampleParsedObject();
+        $migrations = $parsed['migrationList']->all();
+
+        $customGreatTable = $migrations['my_great_table'];
+
+        $this->assertTrue($customGreatTable->timestamps);
+        $this->assertTrue($customGreatTable->softDeletes);
+        $this->assertEquals('pK', $customGreatTable->primaryKey);
+
+        $this->assertTrue($customGreatTable->columnExists('title'));
+        $this->assertTrue($customGreatTable->columnExists('content'));
+        $this->assertTrue($customGreatTable->columnExists('rating'));
+    }
+
     public function testParsingOfModelTableNameOverrides()
     {
         $parsed = ParsedResult::getSampleParsedObject();

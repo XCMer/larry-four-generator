@@ -75,6 +75,10 @@ Thumb
 table my_great_table
     timestamps
     softDeletes
+    title string 250
+    content text
+    rating decimal 5 2
+    pK increments
 EOF;
     }
 }
