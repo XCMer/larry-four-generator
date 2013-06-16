@@ -123,4 +123,15 @@ class MigrationList
         return isset($this->migrations[ $modelName ]);
     }
 
+
+    /**
+     * Returns the migration with the given model name
+     * @param  string      $modelName The name of the model as parsed
+     * @return Migration              The migration object
+     */
+    public function get($modelName)
+    {
+        return $this->migrations[ $modelName ];
+    }
+
 }
