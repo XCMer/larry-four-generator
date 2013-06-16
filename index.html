@@ -34,7 +34,7 @@
 
 <p>Larry Four has been re-written from scratch for Laravel 4. We have a better syntax that allows more flexibility and room for adding in more features.</p>
 
-<p><strong>Current Version:</strong> 1.0.0beta3</p>
+<p><strong>Current Version:</strong> 1.0.0 (stable)</p>
 
 <h2>
 <a name="a-birds-eye-view" class="anchor" href="#a-birds-eye-view"><span class="octicon octicon-link"></span></a>A bird's eye view</h2>
@@ -71,12 +71,12 @@ Role
 </ul><h2>
 <a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
 
-<p>Larry is still in beta. You can visit <a href="https://packagist.org/packages/raahul/larryfour">Packagist</a> to check the latest version of Larry Four. Currently, it is <code>1.0.0beta3</code>.</p>
+<p>You can visit <a href="https://packagist.org/packages/raahul/larryfour">Packagist</a> to check the latest version of Larry Four. Currently, it is <code>1.0.0</code>.</p>
 
 <p>Here are the steps:</p>
 
 <ul>
-<li>Put the following in your composer.json: <code>"raahul/larryfour": "v1.0.0beta3"</code>
+<li>Put the following in your composer.json: <code>"raahul/larryfour": "v1.0.0"</code>
 </li>
 <li>Run <code>composer update</code>
 </li>
@@ -170,11 +170,14 @@ php artisan larry:fromdb --except=users,posts
 <pre><code>hm: hasMany
 ho: hasOne
 btm: belongToMany
+btmc: belongsToMany with custom pivot table
 mm: morphMany
 mo: morphOne
 </code></pre>
 
 <p>Notice that you can't specify <code>belongsTo</code> and <code>morphTo</code> relations. They are added automatically to the concerned model when their inverses, <code>hasMany, hasOne, morphMany, morphOne</code>, are specified in a related model.</p>
+
+<p>The <code>belongsToMany</code> with custom pivot table is covered in the section: "Creating orphan tables"</p>
 
 <h4>
 <a name="semicolons" class="anchor" href="#semicolons"><span class="octicon octicon-link"></span></a>Semicolons</h4>
@@ -292,6 +295,49 @@ fulltext
 unique
 index
 </code></pre>
+
+<h3>
+<a name="creating-orphan-tables" class="anchor" href="#creating-orphan-tables"><span class="octicon octicon-link"></span></a>Creating orphan tables</h3>
+
+<p>Now, Larry also allows you to create tables (or migrations to precise), without creating models and relations for that table. In short, it's a quick way to add in just a table.</p>
+
+<p>This feature is primarily useful in creating custom pivot tables for the <code>btmc</code> relation type. Pivot tables are not associated with any models.</p>
+
+<p>Normally, for <code>btm</code> relations, a pivot table is automatically created for you with the required fields. However, at times, you'd want to have additional fields in your pivot table. In such cases, you should use the <code>btmc</code> relation, and then specify a custom table with all the desired columns.</p>
+
+<p>An example would be:</p>
+
+<pre><code>Post; mm Image imageable; btmc Comment;
+    timestamps
+    title string 250
+    content text
+    rating decimal 5 2
+
+table comment_post
+    comment_id integer; unsigned
+    post_id integer; unsigned
+    name string
+    type string
+    additional fields...
+</code></pre>
+
+<p>A Post now belongsToMany comments (unusual). Laravel's convention dictates that the pivot table should be called <code>comment_post</code>, and the fields inside should be <code>comment_id</code> and <code>post_id</code>.</p>
+
+<p>You can override the pivot table name and field names the same way as you did in <code>btm</code>. Just make sure that your custom table reflects it.</p>
+
+<p>Custom tables are defined using the term <code>table &lt;table_name&gt;</code>, as you might have noticed. This is how Larry differentiates whether you want to define a model, or an orphan table.</p>
+
+<p>If you specify additional fields, they will be automatically added to <code>withPivot</code> function in the model's relation:</p>
+
+<pre><code>return $this-&gt;belongsToMany('Comment')-&gt;withPivot('name', 'type');
+</code></pre>
+
+<p>If your pivot table contains timestamps, Larry will add them to the relational function too:</p>
+
+<pre><code>return $this-&gt;belongsToMany('Comment')-&gt;withPivot('name', 'type')-&gt;withTimestamps();
+</code></pre>
+
+<p><strong>Note:</strong> If you don't create a pivot table with the right name, or the pivot table doesn't contain the necessary columns for a <code>belongsToMany</code> relation, Larry will throw a helpful error. Remember that the foreign keys of a pivot table have to be unsigned integers.</p>
 
 <h2>
 <a name="error-handling" class="anchor" href="#error-handling"><span class="octicon octicon-link"></span></a>Error handling</h2>
