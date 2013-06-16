@@ -265,9 +265,21 @@ class ModelGenerator
         }
 
 
-        // Close the parenthesis and add a semicolon
-        $functionBody .= ');';
+        // Close the parenthesis
+        $functionBody .= ')';
 
+        // Check if the relation is btmc, and has additional fields that should
+        // be added
+        if (isset($functionData['additional']['btmcColumns'])
+            and $functionData['additional']['btmcColumns'])
+        {
+            $functionBody .= "->withPivot('"
+                . implode("', '", $functionData['additional']['btmcColumns'])
+                . "')";
+        }
+
+        // Add a semicolon
+        $functionBody .= ';';
 
         // Add the function body to the function template
         $result = str_replace('{{functionBody}}', $functionBody, $result);

@@ -85,6 +85,8 @@ table my_great_table
 table comment_post
     post_id integer; unsigned
     comment_id integer; unsigned
+    name string
+    type string
 EOF;
     }
 }
