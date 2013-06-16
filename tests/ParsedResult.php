@@ -87,6 +87,7 @@ table comment_post
     comment_id integer; unsigned
     name string
     type string
+    timestamps
 EOF;
     }
 }

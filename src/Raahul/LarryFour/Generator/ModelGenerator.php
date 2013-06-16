@@ -278,6 +278,14 @@ class ModelGenerator
                 . "')";
         }
 
+        // If the relation is btmc and the migration has timestamps enabled, add
+        // the withTimestamps caluse
+        if (isset($functionData['additional']['btmcTimestamps'])
+            and $functionData['additional']['btmcTimestamps'])
+        {
+            $functionBody .= '->withTimestamps()';
+        }
+
         // Add a semicolon
         $functionBody .= ';';
 

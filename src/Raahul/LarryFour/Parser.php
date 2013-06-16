@@ -381,7 +381,7 @@ class Parser
         // we're using a custom pivot or not
         // First, if we're using btmc, fetch additional columns that needs to go
         // with the pivot
-        $additional = array('btmcColumns' => array());
+        $additional = array('btmcColumns' => array(), 'btmcTimestamps' => false);
         if (!$createTable)
         {
             $pivotColumns = $this->migrationList->get($pivotTableName)->all();
@@ -392,6 +392,12 @@ class Parser
                 {
                     $additional['btmcColumns'][] = $name;
                 }
+            }
+
+            // Also check if timestamps are enabled
+            if ($this->migrationList->get($pivotTableName)->timestamps)
+            {
+                $additional['btmcTimestamps'] = true;
             }
         }
 
