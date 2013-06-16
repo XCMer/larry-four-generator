@@ -58,6 +58,11 @@ class MigrationGeneratorTest extends PHPUnit_Framework_TestCase
         $this->runGeneratedMigrationForTable('t_u', 'migration_t_u');
     }
 
+    public function testGeneratedMigrationContentsForCustomTable()
+    {
+        $this->runGeneratedMigrationForTable('my_great_table', 'migration_my_great_table');
+    }
+
     private function runGeneratedMigrationForTable($modelName, $migrationFile)
     {
         $expected = file_get_contents(__DIR__ . '/data/' . $migrationFile);

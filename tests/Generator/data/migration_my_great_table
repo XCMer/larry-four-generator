@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+
+class CreateMygreattableTable extends Migration {
+
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('my_great_table', function($table) {
+            $table->increments('pK');
+            $table->string('title', 250);
+            $table->text('content');
+            $table->decimal('rating', 5, 2);
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::drop('my_great_table');
+    }
+
+}
