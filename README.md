@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/XCMer/larry-four-generator.png?branch=master)](https://travis-ci.org/XCMer/larry-four-generator)
 
-**Current Version:** 1.0.0beta3
+**Current Version:** 1.0.0 (stable)
 
 If you are not already familiar, I had released a generator for Laravel called <a href="https://github.com/XCMer/larry-laravel-generator">Larry</a>. This version is intended to work with Laravel 4, while supporting new features like polymorphic relations.
 
@@ -41,11 +41,11 @@ In the above case, Larry would do the following:
 
 ## Installation
 
-Larry is still in beta. You can visit <a href="https://packagist.org/packages/raahul/larryfour">Packagist</a> to check the latest version of Larry Four. Currently, it is `1.0.0beta3`.
+You can visit <a href="https://packagist.org/packages/raahul/larryfour">Packagist</a> to check the latest version of Larry Four. Currently, it is `1.0.0`.
 
 Here are the steps:
 
-- Put the following in your composer.json: `"raahul/larryfour": "v1.0.0beta3"`
+- Put the following in your composer.json: `"raahul/larryfour": "v1.0.0"`
 - Run `composer update`
 - Add `'Raahul\LarryFour\LarryFourServiceProvider'` to the `providers` array of `app/config/app.php`
 
@@ -130,10 +130,13 @@ In the above case, we specify the relation that the user has with the other mode
     hm: hasMany
     ho: hasOne
     btm: belongToMany
+    btmc: belongsToMany with custom pivot table
     mm: morphMany
     mo: morphOne
 
 Notice that you can't specify `belongsTo` and `morphTo` relations. They are added automatically to the concerned model when their inverses, `hasMany, hasOne, morphMany, morphOne`, are specified in a related model.
+
+The `belongsToMany` with custom pivot table is covered in the section: "Creating orphan tables"
 
 #### Semicolons
 
@@ -238,6 +241,46 @@ And the following field modifiers are supported:
     fulltext
     unique
     index
+
+
+### Creating orphan tables
+
+Now, Larry also allows you to create tables (or migrations to precise), without creating models and relations for that table. In short, it's a quick way to add in just a table.
+
+This feature is primarily useful in creating custom pivot tables for the `btmc` relation type. Pivot tables are not associated with any models.
+
+Normally, for `btm` relations, a pivot table is automatically created for you with the required fields. However, at times, you'd want to have additional fields in your pivot table. In such cases, you should use the `btmc` relation, and then specify a custom table with all the desired columns.
+
+An example would be:
+
+    Post; mm Image imageable; btmc Comment;
+        timestamps
+        title string 250
+        content text
+        rating decimal 5 2
+
+    table comment_post
+        comment_id integer; unsigned
+        post_id integer; unsigned
+        name string
+        type string
+        additional fields...
+
+A Post now belongsToMany comments (unusual). Laravel's convention dictates that the pivot table should be called `comment_post`, and the fields inside should be `comment_id` and `post_id`.
+
+You can override the pivot table name and field names the same way as you did in `btm`. Just make sure that your custom table reflects it.
+
+Custom tables are defined using the term `table <table_name>`, as you might have noticed. This is how Larry differentiates whether you want to define a model, or an orphan table.
+
+If you specify additional fields, they will be automatically added to `withPivot` function in the model's relation:
+
+    return $this->belongsToMany('Comment')->withPivot('name', 'type');
+
+If your pivot table contains timestamps, Larry will add them to the relational function too:
+
+    return $this->belongsToMany('Comment')->withPivot('name', 'type')->withTimestamps();
+
+**Note:** If you don't create a pivot table with the right name, or the pivot table doesn't contain the necessary columns for a `belongsToMany` relation, Larry will throw a helpful error. Remember that the foreign keys of a pivot table have to be unsigned integers.
 
 
 ## Error handling
