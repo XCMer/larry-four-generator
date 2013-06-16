@@ -70,6 +70,7 @@ class Parser
 
         // Start parsing them line by line
         $currentModel = null;
+        $currentModelType = null;
         foreach ($lines as $line)
         {
             // Increment current line count
@@ -89,7 +90,7 @@ class Parser
 
                 // Else, let's start working on the field
                 try {
-                    $this->parseFieldDefinitionLine($line, $currentModel);
+                    $this->parseFieldDefinitionLine($line, $currentModel, $currentModelType);
                 }
                 catch (ParseError $e) {
                     throw new ParseError("[Line $currentLine] " . $e->getMessage());
@@ -100,7 +101,8 @@ class Parser
                 // Line is a model definition
                 // Parse it and set the current model
                 try {
-                    $currentModel = $this->parseModelDefinitionLine($line);
+                    list($currentModel, $currentModelType)
+                        = $this->parseModelDefinitionLine($line);
                 }
                 catch (ParseError $e) {
                     throw new ParseError("[Line $currentLine] " . $e->getMessage());
@@ -124,32 +126,51 @@ class Parser
      * Parse the model definition line and append the results to the appropriate
      * data structure
      * @param  string $line The input line to be parsed
-     * @return string       The name of the model that was parsed
+     * @return array        The name of the model/table that was parsed and the
+     *                      the definition type (model/table)
      */
     public function parseModelDefinitionLine($line)
     {
         // Parse the model definition
         $parsed = $this->modelDefinitionParser->parse(trim($line));
 
-        // Create a new model and migration
-        // The table name can either be blank or overriden.
+        // Figure out whether it is a table or a model definition.
         $modelName = $parsed['modelName'];
         $tableName = $parsed['tableName'];
+        $type = $parsed['type'];
 
-        $this->modelList->create($modelName, $tableName);
-        $this->migrationList->create($modelName, $tableName);
-
-        // Detect and add in relations for later use
-        foreach ($parsed['relations'] as $rel)
+        // In case of a model definition:
+        // Create a new model and migration
+        // The table name can either be blank or overriden.
+        // Process relations
+        // Return modelName as the model name, and the type
+        if ($type == 'model')
         {
-            $this->relations[] = array_merge(
-                array('fromModel' => $modelName),
-                $rel
-            );
-        }
+            $this->modelList->create($modelName, $tableName);
+            $this->migrationList->create($modelName, $tableName);
 
-        // Return the model name
-        return $modelName;
+            // Detect and add in relations for later use
+            foreach ($parsed['relations'] as $rel)
+            {
+                $this->relations[] = array_merge(
+                    array('fromModel' => $modelName),
+                    $rel
+                );
+            }
+
+            // Return model name and type
+            return array($modelName, $type);
+        }
+        // In case of a table definition:
+        // Create just the migration with the model name as the same as
+        // the table name
+        else
+        {
+            $this->migrationList->create($tableName, $tableName);
+
+            // Return the tableName, type pair
+            return array($tableName, $type);
+        }
     }
 
 
@@ -157,17 +178,22 @@ class Parser
      * Parse the field definition line and build the necessary data structures
      * @param  string $line  The field line to be parsed
      * @param  string $model The name of the model to which the field belongs
+     * @param  string $type  The type of the definition: model/table
      * @return void
      */
-    public function parseFieldDefinitionLine($line, $model)
+    public function parseFieldDefinitionLine($line, $model, $type)
     {
+        // Is this a model definition, or a table definition?
+        // We won't add anything to the model list in case of a table definition
+        $isModelDefinition = ($type == 'model');
+
         // Parse the field definition
         $parsed = $this->fieldParser->parse(trim($line));
 
         // Check if the field is timestamps
         if ($parsed['type'] == 'timestamps')
         {
-            $this->modelList->setTimestamps($model);
+            $isModelDefinition && $this->modelList->setTimestamps($model);
             $this->migrationList->setTimestamps($model);
             return;
         }
@@ -175,7 +201,7 @@ class Parser
         // Check if the field is softDeletes
         if ($parsed['type'] == 'softDeletes')
         {
-            $this->modelList->setSoftDeletes($model);
+            $isModelDefinition && $this->modelList->setSoftDeletes($model);
             $this->migrationList->setSoftDeletes($model);
             return;
         }
@@ -183,7 +209,7 @@ class Parser
         // Check if field type is increments
         if ($parsed['type'] == 'increments')
         {
-            $this->modelList->setPrimaryKey($model, $parsed['name']);
+            $isModelDefinition && $this->modelList->setPrimaryKey($model, $parsed['name']);
             $this->migrationList->setPrimaryKey($model, $parsed['name']);
             return;
         }
