@@ -312,16 +312,6 @@ class Parser
         // Add in the new table if it is needed
         $createTable && $this->migrationList->create($pivotTableName, $pivotTableName);
 
-        // If table is not need, make sure that the table already exists, else throw a
-        // parse error
-        if (!$createTable)
-        {
-            if (!$this->migrationList->exists($pivotTableName))
-            {
-                throw new ParseError("Custom pivot table '{$pivotTableName}' specified in model '"
-                    . $rel['fromModel'] . "'' does not exist.");
-            }
-        }
 
         // Add in the columns
         // Take care to override column names if they have been provided
@@ -334,6 +324,43 @@ class Parser
         {
             $pivotColumn1 = strtolower($rel['fromModel'] . '_id');
             $pivotColumn2 = strtolower($rel['relatedModel'] . '_id');
+        }
+
+        // If table is not need, make sure that the table already exists, and has
+        // the necessary columns
+        if (!$createTable)
+        {
+            // Check if the table exists
+            if (!$this->migrationList->exists($pivotTableName))
+            {
+                throw new ParseError("Custom pivot table '{$pivotTableName}' specified in model '"
+                    . $rel['fromModel'] . "'' does not exist.");
+            }
+
+            // Check if the columns exist
+            $pivotMigration = $this->migrationList->get($pivotTableName);
+            if (!$pivotMigration->columnExists($pivotColumn1))
+            {
+                throw new ParseError("Custom pivot table '{$pivotTableName}' does not contain the necessary column: {$pivotColumn1}");
+            }
+            if (!$pivotMigration->columnExists($pivotColumn2))
+            {
+                throw new ParseError("Custom pivot table '{$pivotTableName}' does not contain the necessary column: {$pivotColumn2}");
+            }
+
+            // Check column data types
+            if (!($pivotMigration->getColumnType($pivotColumn1) == 'integer')
+                or !($pivotMigration->isColumnUnsigned($pivotColumn1))
+                )
+            {
+                throw new ParseError("Column '{$pivotColumn1}' in custom pivot table '{$pivotTableName}' needs to be of type unsigned integer");
+            }
+            if (!($pivotMigration->getColumnType($pivotColumn2) == 'integer')
+                or !($pivotMigration->isColumnUnsigned($pivotColumn2))
+                )
+            {
+                throw new ParseError("Column '{$pivotColumn2}' in custom pivot table '{$pivotTableName}' needs to be of type unsigned integer");
+            }
         }
 
         // Then add in the two columns if a table has to be created

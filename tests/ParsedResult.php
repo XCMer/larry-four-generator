@@ -83,6 +83,8 @@ table my_great_table
     pK increments
 
 table comment_post
+    post_id integer; unsigned
+    comment_id integer; unsigned
 EOF;
     }
 }
