@@ -118,8 +118,11 @@ class ModelDefinitionParser
         // it is implied by the hm or ho relation, and can cause foreign key override problems
         // with the data structure we're currenlty using. So, we'll raise a separate exception
         // for this relation
+        //
+        // 'btmc' (btm custom) is like 'btm', but uses a custom pivot table that the user
+        // has to specify using the orphan table definition
         $relationType = trim($data[0]);
-        if (!in_array( $relationType, array('ho', 'hm', 'bt', 'btm', 'mm', 'mo') ))
+        if (!in_array( $relationType, array('ho', 'hm', 'bt', 'btm', 'btmc', 'mm', 'mo') ))
         {
             throw new ParseError("Invalid relation type: " . $relationType);
         }
@@ -138,7 +141,7 @@ class ModelDefinitionParser
 
         // The third part is the foreign key override for all tables but belongs
         // to many.
-        if ($parsedData['relationType'] == 'btm')
+        if (in_array($parsedData['relationType'], array('btm','btmc')))
         {
             // If only the table name is being overridden
             if (count($data) == 3)

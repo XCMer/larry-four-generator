@@ -154,7 +154,7 @@ class Model
     {
         // If the relation type is hasMany, hasOne, hasManyAndBelongsToMany,
         // then the function name should be the pluralized version of the related model
-        if (in_array( $relationType, array('hm', 'ho', 'btm', 'mm') ))
+        if (in_array( $relationType, array('hm', 'ho', 'btm', 'btmc', 'mm') ))
         {
             return Pluralizer::plural(strtolower($toModel));
         }

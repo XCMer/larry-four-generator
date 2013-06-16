@@ -235,8 +235,8 @@ class ModelGenerator
         // return $this->function('Model', 'pivotTable'
         // return $this->function('Model', 'pivotTable', 'foreignKey1', 'foreignKey2'
         //
-        // First, check if it is a belongsToMany
-        if ($functionData['relationType'] == 'btm')
+        // First, check if it is a belongsToMany (btm or btmc)
+        if (in_array($functionData['relationType'], array('btm','btmc')))
         {
             // Check if a pivot table is provided
             if ($functionData['pivotTable'])
@@ -307,6 +307,7 @@ class ModelGenerator
                 return 'morphTo';
 
             case 'btm':
+            case 'btmc':
                 return 'belongsToMany';
         }
     }

@@ -22,7 +22,8 @@ class ParserTest extends PHPUnit_Framework_TestCase
                 'Image',
                 'Role',
                 'Stuff',
-                'Thumb'
+                'Thumb',
+                'Comment'
             ),
             array_keys($models)
         );
@@ -44,7 +45,9 @@ class ParserTest extends PHPUnit_Framework_TestCase
                 'Role',
                 'Stuff',
                 'Thumb',
+                'Comment',
                 'my_great_table',
+                'comment_post',
                 'role_user',
                 't_u'
             ),

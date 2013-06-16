@@ -236,8 +236,8 @@ class Parser
                 $this->processHasRelation($rel);
             }
 
-            // Else if relation type is btm
-            else if ($rel['relationType'] == 'btm')
+            // Else if relation type is btm or btmc
+            else if (in_array($rel['relationType'], array('btm', 'btmc')))
             {
                 $this->processBelongsToManyRelation($rel);
             }
@@ -286,11 +286,15 @@ class Parser
 
     /**
      * Add the necessary columns to the migration and functions to the models
-     * for a belongs to many relation
+     * for a belongs to many relation, checking if a pivot table has to be created,
+     * depending on whether the type is 'btm' or 'btmc'
      * @param  array $rel An element of the relation array that is being processed
      */
     private function processBelongsToManyRelation($rel)
     {
+        // Determine if a pivot table has to be created
+        $createTable = ($rel['relationType'] == 'btm');
+
         // Determine the name of the pivot table
         // If we're given a pivot table override, use that
         if ($rel['pivotTable'])
@@ -305,8 +309,19 @@ class Parser
                 : strtolower($rel['relatedModel'] . '_' . $rel['fromModel']);
         }
 
-        // Add in the new table
-        $this->migrationList->create($pivotTableName, $pivotTableName);
+        // Add in the new table if it is needed
+        $createTable && $this->migrationList->create($pivotTableName, $pivotTableName);
+
+        // If table is not need, make sure that the table already exists, else throw a
+        // parse error
+        if (!$createTable)
+        {
+            if (!$this->migrationList->exists($pivotTableName))
+            {
+                throw new ParseError("Custom pivot table '{$pivotTableName}' specified in model '"
+                    . $rel['fromModel'] . "'' does not exist.");
+            }
+        }
 
         // Add in the columns
         // Take care to override column names if they have been provided
@@ -321,21 +336,22 @@ class Parser
             $pivotColumn2 = strtolower($rel['relatedModel'] . '_id');
         }
 
-        // Then add in the two columns
-        $this->migrationList->addForeignKey(
+        // Then add in the two columns if a table has to be created
+        $createTable && $this->migrationList->addForeignKey(
             $pivotTableName,
             null,
             $pivotColumn1
         );
 
-        $this->migrationList->addForeignKey(
+        $createTable && $this->migrationList->addForeignKey(
             $pivotTableName,
             null,
             $pivotColumn2
         );
 
 
-        // Manage the models
+        // Manage the model function, which has to added regardless of whether
+        // we're using a custom pivot or not
         $this->modelList->addFunction(
             $rel['fromModel'],
             $rel['relatedModel'],

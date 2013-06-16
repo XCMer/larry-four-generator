@@ -52,7 +52,7 @@ User users; hm Post; btm Role; mm Image imageable; hm Stuff stuffer_id; btm Thum
     email string 250
     type enum admin, moderator, user
 
-Post; mm Image imageable;
+Post; mm Image imageable; btmc Comment;
     timestamps
     title string 250
     content text
@@ -72,6 +72,8 @@ Stuff;
 Thumb
     timestamps
 
+Comment
+
 table my_great_table
     timestamps
     softDeletes
@@ -79,6 +81,8 @@ table my_great_table
     content text
     rating decimal 5 2
     pK increments
+
+table comment_post
 EOF;
     }
 }

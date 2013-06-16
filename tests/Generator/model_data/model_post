@@ -14,4 +14,9 @@ class Post extends Eloquent
         return $this->morphMany('Image', 'imageable');
     }
 
+    public function comments()
+    {
+        return $this->belongsToMany('Comment');
+    }
+
 }
