@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/XCMer/larry-four-generator.png?branch=master)](https://travis-ci.org/XCMer/larry-four-generator)
 
-**Current Version:** 1.0.0 (stable)
+**Current Version:** 1.0.1 (stable)
 
 If you are not already familiar, I had released a generator for Laravel called <a href="https://github.com/XCMer/larry-laravel-generator">Larry</a>. This version is intended to work with Laravel 4, while supporting new features like polymorphic relations.
 
@@ -41,11 +41,11 @@ In the above case, Larry would do the following:
 
 ## Installation
 
-You can visit <a href="https://packagist.org/packages/raahul/larryfour">Packagist</a> to check the latest version of Larry Four. Currently, it is `1.0.0`.
+You can visit <a href="https://packagist.org/packages/raahul/larryfour">Packagist</a> to check the latest version of Larry Four. Currently, it is `1.0.1`.
 
 Here are the steps:
 
-- Put the following in your composer.json: `"raahul/larryfour": "v1.0.0"`
+- Put the following in your composer.json: `"raahul/larryfour": "v1.x"`
 - Run `composer update`
 - Add `'Raahul\LarryFour\LarryFourServiceProvider'` to the `providers` array of `app/config/app.php`
 
