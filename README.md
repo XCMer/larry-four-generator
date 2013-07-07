@@ -45,7 +45,7 @@ You can visit <a href="https://packagist.org/packages/raahul/larryfour">Packagis
 
 Here are the steps:
 
-- Put the following in your composer.json: `"raahul/larryfour": "v1.x"`
+- Put the following in your composer.json: `"raahul/larryfour": "1.*"`
 - Run `composer update`
 - Add `'Raahul\LarryFour\LarryFourServiceProvider'` to the `providers` array of `app/config/app.php`
 
