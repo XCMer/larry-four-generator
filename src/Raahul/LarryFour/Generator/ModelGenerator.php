@@ -1,5 +1,5 @@
 <?php namespace Raahul\LarryFour\Generator;
-
+use Config;
 class ModelGenerator
 {
     /**
