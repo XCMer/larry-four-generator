@@ -1,5 +1,5 @@
 <?php namespace Raahul\LarryFour\Generator;
-use Illuminate\Support\Facades\Config;
+
 class ModelGenerator
 {
     /**
@@ -46,16 +46,16 @@ class ModelGenerator
         $parentClass = '';
         
         
-        if(Config::get('larryfour::config.updateModels') && !in_array($model->modelName, Config::get('larryfour::config.ommitModels')))
+        if(\Config::get('larryfour::config.updateModels') && !in_array($model->modelName, \Config::get('larryfour::config.ommitModels')))
         {
             // Add in the model namespaces
-            $result = $this->addNamespaces($result, Config::get('larryfour::config.namespaces'));
+            $result = $this->addNamespaces($result, \Config::get('larryfour::config.namespaces'));
 
             // Add in the validation rules
-            $result = $this->addValidationRulesIfNeeded($result, Config::get('larryfour::config.validateModels'));
+            $result = $this->addValidationRulesIfNeeded($result, \Config::get('larryfour::config.validateModels'));
 
             // Model extends updated parent class
-            $parentClass = Config::get('larryfour::config.parentClass');
+            $parentClass = \Config::get('larryfour::config.parentClass');
         }
         else 
         {
@@ -66,7 +66,7 @@ class ModelGenerator
             $result = $this->addValidationRulesIfNeeded($result, false);
             
             // Model extends default parent class
-            $parentClass = Config::get('larryfour::config.defaults.parentClass');
+            $parentClass = \Config::get('larryfour::config.defaults.parentClass');
         }
         
         // Add in the model parent class
