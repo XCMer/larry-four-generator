@@ -1,7 +1,9 @@
 <?php
-
-class {{modelName}} extends Eloquent
+{{namespaces}}
+class {{modelName}} extends {{parentClass}}
 {
+    {{validationRules}}
+    
     {{tableName}}
     {{primaryKey}}
     {{timestamps}}

@@ -42,6 +42,37 @@ class ModelGenerator
         // Store the local version of the template
         $result = $this->modelTemplate;
 
+         // Initialize parent class variable
+        $parentClass = '';
+        
+        
+        if(Config::get('larryfour::config.updateModels') && !in_array($model->modelName, Config::get('larryfour::config.ommitModels')))
+        {
+            // Add in the model namespaces
+            $result = $this->addNamespaces($result, Config::get('larryfour::config.namespaces'));
+
+            // Add in the validation rules
+            $result = $this->addValidationRulesIfNeeded($result, Config::get('larryfour::config.validateModels'));
+
+            // Model extends updated parent class
+            $parentClass = Config::get('larryfour::config.parentClass');
+        }
+        else 
+        {
+            // Empty namespaces
+            $result = $this->addNamespaces($result, array());
+
+            // Empty validation rules
+            $result = $this->addValidationRulesIfNeeded($result, false);
+            
+            // Model extends default parent class
+            $parentClass = Config::get('larryfour::config.defaults.parentClass');
+        }
+        
+        // Add in the model parent class
+        $result = $this->addParentClass($result, $parentClass);
+        
+        
         // Add in the model name
         $result = $this->addModelName($result, $model->modelName);
 
@@ -70,8 +101,56 @@ class ModelGenerator
         // Return the result
         return $result;
     }
+     
+     /**
+     * Given the model file contents, put in the used namespaces in proper
+     * location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  array $namespaces         Array containing used namespaces
+     * @return string                    The updated model file contents
+     */
+    private function addNamespaces($modelFileContents, $namespaces)
+    {
+        $namespaces = array_map(function($item){ return "use ".$item."; "; }, $namespaces);
+        return str_replace('{{namespaces}}', implode("\n",$namespaces), $modelFileContents);
+    }
+    
+    /**
+     * Given the model file contents, put in the model parent class in the 
+     * appropriate location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  string $parentClass       The name of the parent class
+     * @return string                    The updated model file contents
+     */
+    private function addParentClass($modelFileContents, $parentClass)
+    {
+        return str_replace('{{parentClass}}', $parentClass, $modelFileContents);
+    }
 
+     /**
+     * Given the model file contents, put in the validation rules array stub in
+     * appropriate location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  boolean $validationRules  Insert the array stub
+     * @return string                    The updated model file contents
+     */
+    private function addValidationRulesIfNeeded($modelFileContents, $validationRules)
+    {
+        if ($validationRules)
+        {
+            $t = 'public static $rules = array();';
+        }
+        else
+        {
+            $t = '';
+        }
 
+        return str_replace('{{validationRules}}',
+            $t,
+            $modelFileContents
+        );
+    }
+    
     /**
      * Given the model file contents, put in the model name in the appropriate
      * location
