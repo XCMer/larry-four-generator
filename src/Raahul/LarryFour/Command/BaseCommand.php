@@ -16,6 +16,7 @@ use \Raahul\LarryFour\MigrationList;
 
 use \Raahul\LarryFour\Generator\ModelGenerator;
 use \Raahul\LarryFour\Generator\MigrationGenerator;
+use \Raahul\LarryFour\Generator\FrozenmodelGenerator;
 
 class BaseCommand extends Command {
 
@@ -45,6 +46,13 @@ class BaseCommand extends Command {
      */
     protected $migrationGenerator;
 
+    
+    /**
+     * Instance of the frozenmodel generator
+     * @var \Raahul\LarryFour\Generator\FrozenmodelGenerator
+     */
+    protected $frozenmodelGenerator;
+    
     /**
      * Create a new command instance.
      *
@@ -64,13 +72,15 @@ class BaseCommand extends Command {
         // Initialize the generators
         $this->modelGenerator = new ModelGenerator();
         $this->migrationGenerator = new MigrationGenerator();
+        $this->frozenmodelGenerator = new FrozenmodelGenerator();
 
         // Initial the paths to the model and migration folder, and then the
         // writer class
         $modelPath = app_path() . '/models/';
         $migrationPath = app_path() . '/database/migrations/';
+        $frozenmodelPath = app_path() . '/config/administrator/';
 
-        $this->larryWriter = new Writer($modelPath, $migrationPath);
+        $this->larryWriter = new Writer($modelPath, $migrationPath, $frozenmodelPath);
     }
 
     /**
@@ -129,15 +139,16 @@ class BaseCommand extends Command {
     }
 
     /**
-     * Generates all the models, given a list of models
+     * Generates all the models, given a list of models and migrations
      * @param  array $models An array of model objects
+     * @param  array $migrations An array of migration objects
      */
-    protected function generateModels($models)
+    protected function generateModels($models, $migrations)
     {
         foreach ($models as $model)
         {
             $this->larryWriter->writeModel(
-                $this->modelGenerator->generate($model),
+                $this->modelGenerator->generate($model, $migrations),
                 $model->modelName . '.php'
             );
             $this->info("Wrote model: " . $model->modelName . '.php');

@@ -30,7 +30,7 @@ class Generate extends BaseCommand {
         $this->generateMigrations($parsed['migrationList']->all());
 
         // Generate models
-        $this->generateModels($parsed['modelList']->all());
+        $this->generateModels($parsed['modelList']->all(), $parsed['migrationList']->all());
     }
 
 }

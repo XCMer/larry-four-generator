@@ -2,7 +2,20 @@
 {{namespaces}}
 class {{modelName}} extends {{parentClass}}
 {
+
+    {{ardentConfig}}
+        
     {{validationRules}}
+    
+    {{sluggableRules}}
+    {{sluggableGetters}}
+    
+    {{fillableConfig}}
+    {{guardedConfig}}
+    {{hiddenConfig}}
+   
+    
+    {{eventHooks}}
     
     {{tableName}}
     {{primaryKey}}

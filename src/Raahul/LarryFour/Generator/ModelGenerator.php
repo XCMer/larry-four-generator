@@ -1,5 +1,6 @@
 <?php namespace Raahul\LarryFour\Generator;
 
+use Config;
 class ModelGenerator
 {
     /**
@@ -16,6 +17,22 @@ class ModelGenerator
      */
     private $relationalFunctionTemplate;
 
+     
+    /**
+     * Stores the hook template for use throughout the lifetime of this instance,
+     * which saves is from reading the template again and again from a file
+     * @var string
+     */
+    private $hookTemplate;
+
+    /**
+     * Stores the attribute getter template for use throughout the lifetime of 
+     * this instance, which saves is from reading the template again and again
+     * from a file
+     * @var string
+     */
+    private $getterTemplate;
+
 
     /**
      * Load the model template
@@ -24,6 +41,12 @@ class ModelGenerator
     {
         // Load the model template
         $this->modelTemplate = file_get_contents(__DIR__ . '/templates/model');
+
+        // Load the hook template
+        $this->hookTemplate = file_get_contents(__DIR__ . '/templates/modelhook');
+
+        // Load the getter template
+        $this->getterTemplate = file_get_contents(__DIR__ . '/templates/modelgetter');
 
         // Load the relation function block template
         $this->relationalFunctionTemplate =
@@ -34,40 +57,126 @@ class ModelGenerator
     /**
      * Generate the model file contents from the templates and the model
      * object provided
-     * @param  \Raahul\LarryFour\Model $model The model object whose model file has to be generated
-     * @return string                  The model file contents
+     * @param  \Raahul\LarryFour\Model $model   The model object whose model file has to be generated
+     * @param  array $migrations                An array of migration objects
+     * @return string                           The model file contents
      */
-    public function generate($model)
+    public function generate($model, $migrations)
     {
         // Store the local version of the template
         $result = $this->modelTemplate;
-
+        
+        // Get model columns
+        $migration = $migrations[$model->modelName];
+        $columns = $migration->all();
+        
          // Initialize parent class variable
-        $parentClass = '';
+        $parentClass = 'Eloquent';
         
-        
-        if(\Config::get('larryfour::config.updateModels') && !in_array($model->modelName, \Config::get('larryfour::config.ommitModels')))
-        {
-            // Add in the model namespaces
-            $result = $this->addNamespaces($result, \Config::get('larryfour::config.namespaces'));
-
-            // Add in the validation rules
-            $result = $this->addValidationRulesIfNeeded($result, \Config::get('larryfour::config.validateModels'));
-
-            // Model extends updated parent class
-            $parentClass = \Config::get('larryfour::config.parentClass');
-        }
-        else 
-        {
-            // Empty namespaces
-            $result = $this->addNamespaces($result, array());
-
-            // Empty validation rules
-            $result = $this->addValidationRulesIfNeeded($result, false);
+        // Initialize processing config
+        $processModelFlag = false;
+        $processModelItems = Config::get('larryfour::validation.processSelection.items');
+        $processModelFunction = Config::get('larryfour::validation.processSelection.function');
             
-            // Model extends default parent class
-            $parentClass = \Config::get('larryfour::config.defaults.parentClass');
+        if(Config::get('larryfour::validation.processModels'))
+        {
+            switch($processModelFunction)
+            {
+            case "all":
+                $processModelFlag = true;
+                break;
+            
+            case "only":
+                $processModelFlag = in_array($model->modelName, $processModelItems);
+                break;
+            
+            case "except":
+                $processModelFlag = !in_array($model->modelName, $processModelItems);
+                break;
+            
+            default:
+                break;
+            }
+        
         }
+        
+        // Model extends updated parent class or add default
+        $parentClass = $processModelFlag ? Config::get('larryfour::validation.parentClass') : Config::get('larryfour::validation.defaults.parentClass');
+
+        // Add in the model namespaces or add blank
+        $result = $this->addNamespaces($result, $processModelFlag ? Config::get('larryfour::validation.namespaces') : array());
+
+        // Add in the validation rules
+        $result = $this->addValidationRulesIfNeeded($result, $columns, $processModelFlag ? Config::get('larryfour::validation.validateModels') : false);
+
+        // Add in the Ardent specific config
+        $result = $this->addArdentConfigIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.ardentConfig') : array());
+
+        // Add in the Eloquent specific config
+        $result = $this->addFillableIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.fillModels') : false);
+        $result = $this->addGuardedIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.guardModels') : false);
+        $result = $this->addHiddenIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.hideModels') : false);
+
+        // Expose the event hook stubs
+        $result = $this->addHooksIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.exposeHooks') : array());
+        
+        // Initialize processing config
+        $selectSlugFlag = false;
+        $selectSlugItems = Config::get('larryfour::slugs.selectSlugs.items');
+        $selectSlugFunction = Config::get('larryfour::slugs.selectSlugs.function');
+        $modelFields = array_keys($columns);
+
+        $configureSlugFlag = false;
+        $configureSlugItems = Config::get('larryfour::slugs.configureSlugs');
+        $configureSlugRuleset = array();
+        $configureSlugGetters = array();
+                                
+        
+        if(Config::get('larryfour::slugs.createSlugs'))
+        {
+            switch($selectSlugFunction)
+            {
+            case "all":
+                $selectSlugFlag = ( count(array_intersect($selectSlugItems, $modelFields)) >= count($selectSlugItems) ) ? true : false;
+                break;
+            
+            case "one":
+                $selectSlugFlag = ( count(array_intersect($selectSlugItems, $modelFields)) > 0 ) ? true : false;
+                break;
+            
+            default:
+                break;
+            }
+            
+            if($selectSlugFlag)
+            {
+                
+                foreach($configureSlugItems as $key=>$slugs)
+                {
+                    if( count(array_intersect($slugs['required'], $modelFields)) > 0 && count(array_intersect($slugs['forbidden'], $modelFields)) == 0)
+                    {
+                        $configureSlugFlag = true;
+                        $configureSlugRuleset = $slugs['rules'];
+                        $configureSlugGetters = $slugs['builder'];
+                        break;
+                    }
+                }
+                
+                if($configureSlugFlag == false && isset($configureSlugItems['default']))
+                {
+                        $slugs = $configureSlugItems['default']; 
+                        $configureSlugFlag = true;
+                        $configureSlugRuleset = $slugs['rules'];
+                        $configureSlugGetters = $slugs['builder'];
+                }
+                
+                
+            }
+            
+        }
+        $result = $this->addSlugRulesIfNeeded($result, $configureSlugFlag ? $configureSlugRuleset : array());
+        $result = $this->addSlugGettersIfNeeded($result, $configureSlugFlag ? $configureSlugGetters : array());
+        
         
         // Add in the model parent class
         $result = $this->addParentClass($result, $parentClass);
@@ -131,25 +240,296 @@ class ModelGenerator
      * Given the model file contents, put in the validation rules array stub in
      * appropriate location
      * @param  string $modelFileContents The contents of the model file
+     * @param  array $columns            Array of the model columns
      * @param  boolean $validationRules  Insert the array stub
      * @return string                    The updated model file contents
      */
-    private function addValidationRulesIfNeeded($modelFileContents, $validationRules)
+    private function addValidationRulesIfNeeded($modelFileContents, $columns, $validationRules)
     {
-        if ($validationRules)
+         $rules = '';
+         
+        if (!is_array($validationRules) || empty($validationRules))
         {
-            $t = 'public static $rules = array();';
+            
+        }
+        elseif($validationRules['createRules'])
+        {
+            $rules = 'public static $rules = array('."\n";
+            $validationRules = $validationRules['mapRules'];
+            
+            foreach($columns as $fieldName=>$fieldDetails)
+            {
+                $currentRules = array();
+                
+                if(key_exists($fieldName, $validationRules['fieldNames']))
+                {
+                    $currentRules = array_merge($currentRules, $validationRules['fieldNames'][$fieldName]);
+                }
+                
+                if(key_exists($fieldDetails['type'], $validationRules['fieldTypes']))
+                {
+                    $currentRules = array_merge($currentRules, $validationRules['fieldTypes'][$fieldDetails['type']]);
+                }
+                
+                if($fieldDetails['type'] == 'enum')
+                {
+                    array_push($currentRules, "in:".implode(',',$fieldDetails['parameters']));
+                }
+                
+                if(!empty($fieldDetails['parameters']))
+                {
+                    $param = current($fieldDetails['parameters']);
+                    if((int)$param > 0)
+                    {
+                        array_push($currentRules, "max:".$param);
+                    }
+                }
+
+                if(!empty($currentRules))
+                {
+                     $rules .= "'".$fieldName."' => array"."(".implode(',',array_map(function($item){ return "'".$item."'"; }, $currentRules))."), "."\n";
+                }
+                                        
+            }
+       
+            $rules .= '); '."\n";
+        }
+                
+        return str_replace('{{validationRules}}',
+            $rules,
+            $modelFileContents
+        );
+        
+    }
+    
+    
+    /**
+     * Given the model file contents, put in the Sluggable rules in appropriate 
+     * location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  array  $slugRulesConfig      slugRules config array
+     * @return string                    The updated model file contents
+     */
+    private function addSlugRulesIfNeeded($modelFileContents, $slugRulesConfig)
+    {
+        $configs = '';
+        if (!is_array($slugRulesConfig) || empty($slugRulesConfig))
+        {
+            
         }
         else
         {
-            $t = '';
+                $configs .= 'public static $sluggable = array'."(".implode(',',array_map(function($key, $item){ return "'".$key."' => '".$item."'"; }, array_keys($slugRulesConfig),$slugRulesConfig))."); "."\n";
         }
-
-        return str_replace('{{validationRules}}',
-            $t,
+        
+        
+        return str_replace('{{sluggableRules}}',
+            $configs,
             $modelFileContents
         );
     }
+    
+    /**
+     * Given the model file contents, put in the Sluggable getters in appropriate 
+     * location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  array  $slugGettersConfig      slugGetters config array
+     * @return string                    The updated model file contents
+     */
+    private function addSlugGettersIfNeeded($modelFileContents, $slugGettersConfig)
+    {
+        $configs = '';
+        if (!is_array($slugGettersConfig) || empty($slugGettersConfig))
+        {
+            
+        }
+        elseif($slugGettersConfig['createGetters'])
+        {
+            $template = $this->getterTemplate;
+
+            foreach($slugGettersConfig['mapGetters'] as $key=>$getter)
+            {
+                $configs .= str_replace('{{fieldName}}', $getter['fieldName'], str_replace('{{methodName}}', $getter['methodName'], $template)) . " \n";
+            }
+            
+        }
+                
+        return str_replace('{{sluggableGetters}}',
+            $configs,
+            $modelFileContents
+        );
+    }
+    
+    
+    
+    
+    /**
+     * Given the model file contents, put in the fillable config in appropriate 
+     * location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  array  $fillableConfig      fillable config array
+     * @return string                    The updated model file contents
+     */
+    private function addFillableIfNeeded($modelFileContents, $fillableConfig)
+    {
+        $configs = '';
+        if (!is_array($fillableConfig) || empty($fillableConfig))
+        {
+            
+        }
+        elseif($fillableConfig['createFillable'])
+        {
+            if($fillableConfig['allFillable'] == true)
+            {
+                $configs .= 'protected $fillable = array'."('*'); "."\n";
+            }
+            else
+            {
+                $configs .= 'protected $fillable = array'."(".implode(',',array_map(function($item){ return "'".$item."'"; }, $fillableConfig['defaultFillable']))."); "."\n";
+            }
+            
+        }
+        
+        
+        return str_replace('{{fillableConfig}}',
+            $configs,
+            $modelFileContents
+        );
+    }
+    
+    /**
+     * Given the model file contents, put in the guarded config in appropriate 
+     * location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  array  $guardedConfig      guarded config array
+     * @return string                    The updated model file contents
+     */
+    private function addGuardedIfNeeded($modelFileContents, $guardedConfig)
+    {
+        $configs = '';
+        if (!is_array($guardedConfig) || empty($guardedConfig))
+        {
+            
+        }
+        elseif($guardedConfig['createGuarded'])
+        {
+            if($guardedConfig['allGuarded'] == true)
+            {
+                $configs .= 'protected $guarded = array'."('*'); "."\n";
+            }
+            else
+            {
+                $configs .= 'protected $guarded = array'."(".implode(',',array_map(function($item){ return "'".$item."'"; }, $guardedConfig['defaultGuarded']))."); "."\n";
+            }
+            
+        }
+        
+        
+        return str_replace('{{guardedConfig}}',
+            $configs,
+            $modelFileContents
+        );
+    }
+    
+    /**
+     * Given the model file contents, put in the hidden config in appropriate 
+     * location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  array  $hiddenConfig      hidden config array
+     * @return string                    The updated model file contents
+     */
+    private function addHiddenIfNeeded($modelFileContents, $hiddenConfig)
+    {
+        $configs = '';
+        if (!is_array($hiddenConfig) || empty($hiddenConfig))
+        {
+            
+        }
+        elseif($hiddenConfig['createHidden'])
+        {
+            if($hiddenConfig['allHidden'] == true)
+            {
+                $configs .= 'protected $hidden = array'."('*'); "."\n";
+            }
+            else
+            {
+                $configs .= 'protected $hidden = array'."(".implode(',',array_map(function($item){ return "'".$item."'"; }, $hiddenConfig['defaultHidden']))."); "."\n";
+            }
+            
+        }
+        
+        
+        return str_replace('{{hiddenConfig}}',
+            $configs,
+            $modelFileContents
+        );
+    }
+
+    
+     /**
+     * Given the model file contents, put in the event hooks stub in appropriate 
+     * location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  array  $exposeHooks       Hooks array
+     * @return string                    The updated model file contents
+     */
+    private function addHooksIfNeeded($modelFileContents, $exposeHooks)
+    {
+        if (!is_array($exposeHooks) || empty($exposeHooks))
+        {
+            $hooks = '';
+        }
+        else
+        {
+            $template = $this->hookTemplate;
+
+            $hooks = '';
+            
+            foreach($exposeHooks as $hookName=>$exposeHook)
+            {
+                if($exposeHook) $hooks .= str_replace('{{methodName}}', $hookName, $template) . " \n";
+            }
+            
+        }
+
+        return str_replace('{{eventHooks}}',
+            $hooks,
+            $modelFileContents
+        );
+    }
+    
+      /**
+     * Given the model file contents, put in the Ardent config in appropriate 
+     * location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  array  $ardentConfig      Ardent config array
+     * @return string                    The updated model file contents
+     */
+    private function addArdentConfigIfNeeded($modelFileContents, $ardentConfig)
+    {
+        if (!is_array($ardentConfig) || empty($ardentConfig))
+        {
+            $configs = '';
+        }
+        else
+        {
+            
+            $configs = '';
+            if($ardentConfig['autoHydrate'] != false)   $configs .= 'public $autoHydrateEntityFromInput = true; '."\n";
+            if($ardentConfig['autoPurge'] != false)     $configs .= 'public $autoPurgeRedundantAttributes = true; '."\n";
+            
+            if(!empty($ardentConfig['hashFields']))     $configs .= 'public static $passwordAttributes  = array'."(".implode(',',array_map(function($item){ return "'".$item."'"; }, $ardentConfig['hashFields']))."); "."\n";
+            if($ardentConfig['autoHash'] != false)      $configs .= 'public $autoHashPasswordAttributes = true; '." \n";
+        }
+
+        
+        return str_replace('{{ardentConfig}}',
+            $configs,
+            $modelFileContents
+        );
+    }
+    
+    
     
     /**
      * Given the model file contents, put in the model name in the appropriate
