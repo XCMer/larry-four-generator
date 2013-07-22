@@ -10,7 +10,7 @@ class ModelGenerator
      */
     private $modelTemplate;
 
-    /**
+    /** 
      * Stores the relational function template for use throughout the lifetime of this instance,
      * which saves is from reading the template again and again from a file
      * @var string
@@ -276,6 +276,15 @@ class ModelGenerator
                     array_push($currentRules, "in:".implode(',',$fieldDetails['parameters']));
                 }
                 
+                if(!isset($fieldDetails['nullable']))
+                {
+                    array_push($currentRules, "required");
+                }
+                elseif(!($fieldDetails['nullable']))
+                {
+                    array_push($currentRules, "required");
+                }
+                                                
                 if(!empty($fieldDetails['parameters']))
                 {
                     $param = current($fieldDetails['parameters']);
