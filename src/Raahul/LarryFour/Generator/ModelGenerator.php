@@ -241,21 +241,21 @@ class ModelGenerator
      * appropriate location
      * @param  string $modelFileContents The contents of the model file
      * @param  array $columns            Array of the model columns
-     * @param  boolean $validationRules  Insert the array stub
+     * @param  boolean $validationConfig  Insert the array stub
      * @return string                    The updated model file contents
      */
-    private function addValidationRulesIfNeeded($modelFileContents, $columns, $validationRules)
+    private function addValidationRulesIfNeeded($modelFileContents, $columns, $validationConfig)
     {
          $rules = '';
          
-        if (!is_array($validationRules) || empty($validationRules))
+        if (!is_array($validationConfig) || empty($validationConfig))
         {
             
         }
-        elseif($validationRules['createRules'])
+        elseif($validationConfig['createRules'])
         {
             $rules = 'public static $rules = array('."\n";
-            $validationRules = $validationRules['mapRules'];
+            $validationRules = $validationConfig['mapRules'];
             
             foreach($columns as $fieldName=>$fieldDetails)
             {
@@ -288,7 +288,7 @@ class ModelGenerator
                 if(!empty($fieldDetails['parameters']))
                 {
                     $param = current($fieldDetails['parameters']);
-                    if((int)$param > 0)
+                    if((int)$param > 1)
                     {
                         array_push($currentRules, "max:".$param);
                     }
@@ -298,7 +298,11 @@ class ModelGenerator
                 {
                      $rules .= "'".$fieldName."' => array"."(".implode(',',array_map(function($item){ return "'".$item."'"; }, $currentRules))."), "."\n";
                 }
-                                        
+                elseif($validationConfig['includeEmpty'])
+                {
+                     $rules .= "'".$fieldName."' => array"."(), "."\n";
+                }
+                               
             }
        
             $rules .= '); '."\n";

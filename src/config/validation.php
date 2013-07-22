@@ -68,6 +68,7 @@ return array(
 
     'validateModels' => array(
         'createRules' => false,
+        'includeEmpty' => true,
         'defaultRules' => array(),
         'mapRules' => array(
             'fieldTypes' => array(
