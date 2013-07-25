@@ -1,221 +1,349 @@
 <?php namespace Raahul\LarryFour\Generator;
 
+use Config;
 class FrozenmodelGenerator
 {
     /**
-     * Stores the migration template for use throughout the lifetime of this instance,
+     * Stores the model template for use throughout the lifetime of this instance,
      * which saves is from reading the template again and again from a file
      * @var string
      */
-    private $template;
+    private $modelTemplate;
+
+    /** 
+     * Stores the relational function template for use throughout the lifetime of this instance,
+     * which saves is from reading the template again and again from a file
+     * @var string
+     */
+    private $relationalFunctionTemplate;
+
+     
+    /**
+     * Stores the column template for use throughout the lifetime of this instance,
+     * which saves is from reading the template again and again from a file
+     * @var string
+     */
+    private $columnTemplate;
+
+    /**
+     * Stores the attribute edit template for use throughout the lifetime of 
+     * this instance, which saves is from reading the template again and again
+     * from a file
+     * @var string
+     */
+    private $editTemplate;
+    
+    /**
+     * Stores the filter template for use throughout the lifetime of 
+     * this instance, which saves is from reading the template again and again
+     * from a file
+     * @var string
+     */
+    private $filterTemplate;
 
 
     /**
-     * Load the migration template
+     * Load the model template
      */
     public function __construct()
     {
-        $this->template = file_get_contents(__DIR__ . '/templates/frozenmodel');
+        // Load the model template
+        $this->modelTemplate = file_get_contents(__DIR__ . '/templates/frozenmodel');
+
+        // Load the templates
+        $this->columnTemplate = file_get_contents(__DIR__ . '/templates/frozenmodel_column');
+        $this->editTemplate = file_get_contents(__DIR__ . '/templates/frozenmodel_edit');
+        $this->filterTemplate = file_get_contents(__DIR__ . '/templates/frozenmodel_filter');
+        
+
+        // Load the relation function block template
+        $this->relationalFunctionTemplate =
+            file_get_contents(__DIR__ . '/templates/relational_function');
     }
 
 
     /**
-     * Generate the migration file contents from the templates and the migration
+     * Generate the frozenmodel file contents from the templates and the model
      * object provided
-     * @param  \Raahul\LarryFour\Migration $migration The migration object whose migration file has to be generated
-     * @return string                          The migration file contents
+     * @param  \Raahul\LarryFour\Model $model   The model object whose model file has to be generated
+     * @param  array $migrations                An array of migration objects
+     * @return string                           The model file contents
      */
-    public function generate(\Raahul\LarryFour\Migration $migration)
+    public function generate($model, $migrations)
+    {
+        // Store the local version of the template
+        $result = $this->modelTemplate;
+        
+        // Get model columns
+        $migration = $migrations[$model->modelName];
+        $columns = $migration->all();
+        
+        // Initialize processing config
+        $processModelFlag = false;
+        $processModelItems = Config::get('larryfour::frozenmodel.processSelection.items');
+        $processModelFunction = Config::get('larryfour::frozenmodel.processSelection.function');
+            
+        if(Config::get('larryfour::frozenmodel.processModels'))
+        {
+            switch($processModelFunction)
+            {
+            case "all":
+                $processModelFlag = true;
+                break;
+            
+            case "only":
+                $processModelFlag = in_array($model->modelName, $processModelItems);
+                break;
+            
+            case "except":
+                $processModelFlag = !in_array($model->modelName, $processModelItems);
+                break;
+            
+            default:
+                break;
+            }
+        
+        }
+        
+        // Add in the validation rules
+        $result = $this->addModelName($result, $model->modelName);
+
+        //TODO
+        
+        // Return the result
+        return $result;
+    }
+    
+    
+     /**
+     * Given the frozenmodel file contents, put in the validation rules array stub in
+     * appropriate location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  array $columns            Array of the model columns
+     * @param  boolean $validationConfig  Insert the array stub
+     * @return string                    The updated model file contents
+     */
+    private function addValidationRulesIfNeeded($modelFileContents, $columns, $validationConfig)
+    {
+         $rules = '';
+         
+      //TODO
+                
+        return str_replace('{{validationRules}}',
+            $rules,
+            $modelFileContents
+        );
+        
+    }
+    
+    /**
+     * Given the model file contents, put in the model name in the appropriate
+     * location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  string $modelName         The name of the model
+     * @return string                    The updated model file contents
+     */
+    private function addModelName($modelFileContents, $modelName)
+    {
+        return str_replace('{{modelName}}', $modelName, $modelFileContents);
+    }
+
+
+
+    /**
+     * Given the model file contents, put in the table name override in the appropriate
+     * location if needed
+     * @param  string  $modelFileContents The contents of the model file
+     * @param  string  $tableName         The table name override or blank
+     * @return string                     The updated model file contents
+     */
+    private function addTableNameIfNeeded($modelFileContents, $tableName)
+    {
+        // If the model has a table name, it means that it was overriden,
+        // so put in a table name line
+        if ($tableName)
+        {
+            return str_replace('{{tableName}}',
+                "protected \$table = '{$tableName}';",
+                $modelFileContents
+            );
+        }
+
+        // Else remove the line
+        else
+        {
+            return str_replace("    {{tableName}}\n", '', $modelFileContents);
+        }
+    }
+
+
+    /**
+     * Given a function name and all the data related to it, generate the relation
+     * function block with all the necessary parameters
+     * @param  string $functionName The name of the function
+     * @param  array  $functionData All the meta data related to the function
+     * @return string               The relation function block
+     */
+    private function getRelationFunction($functionName, $functionData)
     {
         // Store the template locally
-        $result = $this->template;
+        $result = $this->relationalFunctionTemplate;
 
-        // Add the table name
-        $result = str_replace('{{tableName}}', $migration->tableName, $result);
+        // Add in the function name
+        $result = str_replace('{{functionName}}', $functionName, $result);
 
-        // Add the class name
-        $result = $this->addClassName($result, $migration->tableName);
-
-        // Populate the fields
-        // First, the primary key
-        $result = $this->addFieldLine($result,
-            $this->getFieldLine(array(
-                'name' => $migration->primaryKey,
-                'type' => 'increments',
-                'parameters' => array()
-            ))
-        );
-
-        // Then, move on to all the other columns, which also includes the
-        // relational columns that are autogenerated
-        foreach ($migration->all() as $column)
+        // If the relation type if mt, then the function has no parameters
+        // So just whip it up here and return, since this is the only odd one
+        // out
+        if ($functionData['relationType'] == 'mt')
         {
-            $result = $this->addFieldLine($result, $this->getFieldLine($column));
-        }
-
-        // See if timestamps is present. If yes, add it in too.
-        if ($migration->timestamps)
-        {
-            $result = $this->addFieldLine($result,
-                $this->getFieldLine(array(
-                    'name' => '', // Timestamps have no field names
-                    'type' => 'timestamps',
-                    'parameters' => array()
-                ))
+            return str_replace(
+                '{{functionBody}}',
+                'return $this->morphTo();',
+                $result
             );
         }
 
-        // See if softDeletes is present. If yes, add it in too.
-        if ($migration->softDeletes)
+        // Create the function body
+        // We begin with:
+        // return $this->function('Model'
+        $functionBody = 'return $this->'
+            . $this->getFunctionNameFromRelationType($functionData['relationType'])
+            . "('" . $functionData['toModel'] . "'" ;
+
+        // Add in any extra parameters
+        // For belongs to many, we have the table name override first, and then
+        // the foreign keys. For everything else, there is just one foreign key
+        //
+        // We'll arrive at one of the following:
+        // return $this->function('Model', 'foreignKey'
+        // return $this->function('Model', 'pivotTable'
+        // return $this->function('Model', 'pivotTable', 'foreignKey1', 'foreignKey2'
+        //
+        // First, check if it is a belongsToMany (btm or btmc)
+        if (in_array($functionData['relationType'], array('btm','btmc')))
         {
-            $result = $this->addFieldLine($result,
-                $this->getFieldLine(array(
-                    'name' => '', // softDeletes has no field name
-                    'type' => 'softDeletes',
-                    'parameters' => array()
-                ))
-            );
-        }
-
-        // Remove the final fields tag
-        $result = $this->removeTrailingFieldsTag($result);
-
-        // Return it
-        return $result;
-    }
-
-
-    /**
-     * Generates the php command for a single field line that goes into the
-     * migration
-     * @param  array  $fieldData An array of field information as generated by FieldParser
-     * @return string            The string representing the PHP code for the field line
-     */
-    private function getFieldLine($fieldData)
-    {
-        // Handling for timestamps and softDeletes
-        // They don't have field names, so we have to intercept it first. We simply return the
-        // timestamps function or the softDeletes function without parameters
-        if ( in_array($fieldData['type'], array('timestamps', 'softDeletes')) )
-        {
-            return "\$table->{$fieldData['type']}();";
-        }
-
-        // The beginning part of the definition of a field. A field may or may not have
-        // additional parameters, so we need to test for both cases
-        // For this purpose, we first render the following portion of the line:
-        // $table->type('name'
-        $result = '$table->'
-            . $fieldData['type']
-            . "('" . $fieldData['name'] . "'";
-
-
-        // We then check for additional parameters to the field. If found, we add in
-        // a comma first, and then implode the parameter list.
-        // Now, all the parameters are generally numeric and hence unquoted, the only
-        // exception being the enum type.
-        if ($fieldData['parameters'])
-        {
-            // If the field is of enum type, we implode the parameters array while
-            // surrounding each parameter with a double quote.
-            // Also, we surround the entire parameter list as a PHP array to produce
-            // an output like
-            // $table->enum('field', array("val1", "val2", ...))
-            if ($fieldData['type'] == 'enum')
+            // Check if a pivot table is provided
+            if ($functionData['pivotTable'])
             {
-                // Add quotes around parameters for enum and put them in an array
-                $result .= ', ' // Add a leading comma
-                    . 'array("' // Mark the beginning of the array
-                    . implode('", "', $fieldData['parameters']) // Implode all paramters with quotes
-                    . '")'; // Close the last parameter quote and then the array
-            }
+                // Add the pivot table first
+                $functionBody .= ", '" . $functionData['pivotTable'] . "'";
 
-            // If the field is not enum, then we simply implode it as separate parameters
-            // to the function itself, and not an array, and we consider the parameters
-            // to be numeric
-            else
-            {
-                $result .= ', ' . implode(', ', $fieldData['parameters']);
-            }
-        }
-
-        // Closing of the field definition function
-        $result .= ')';
-
-
-        // Here, we detect other modifiers and append it to the field definition
-        // We do this by creating an array of modifiers, then looping through them
-        // to check if they are set to true
-        $modifiers = array('default', 'nullable', 'unsigned', 'primary', 'fulltext',
-            'unique', 'index');
-        foreach ($modifiers as $modifier)
-        {
-            // We check if the modifier is set and has a true value, because it is not
-            // compulsory for these modifiers to be set, in which case they're assumed false.
-            // However, they can also be set with a boolean value of false.
-            if ( isset($fieldData[$modifier]) && ($fieldData[$modifier]) )
-            {
-                // We use chaining to add in the modifier
-                // ->default(
-                $result  .= '->' . $modifier . '(';
-
-                // Only in the case of the default modifier, the function takes a parameter,
-                // which is the default value. We surround this in quotes.
-                if ($modifier == 'default')
+                // Now check if we also have the two foreign keys
+                if ($functionData['foreignKey'])
                 {
-                    $result .= '"' . $fieldData['default'] . '"';
+                    // Add the two foreign keys as well
+                    $functionBody .= ", '" . $functionData['foreignKey'][0] . "'"
+                        . ", '" . $functionData['foreignKey'][1] . "'";
                 }
-
-                // We then close the parenthesis of the modifier function
-                $result .= ')';
             }
         }
 
-        // In the end, we have to terminate the line with a semicolon
-        $result .= ';';
+        // For all other relations, check if a foreign key is override is present, and
+        // append it
+        else
+        {
+            if ($functionData['foreignKey'])
+            {
+                $functionBody .= ", '" . $functionData['foreignKey'] . "'";
+            }
+        }
 
 
-        // And return the result
+        // Close the parenthesis
+        $functionBody .= ')';
+
+        // Check if the relation is btmc, and has additional fields that should
+        // be added
+        if (isset($functionData['additional']['btmcColumns'])
+            and $functionData['additional']['btmcColumns'])
+        {
+            $functionBody .= "->withPivot('"
+                . implode("', '", $functionData['additional']['btmcColumns'])
+                . "')";
+        }
+
+        // If the relation is btmc and the migration has timestamps enabled, add
+        // the withTimestamps caluse
+        if (isset($functionData['additional']['btmcTimestamps'])
+            and $functionData['additional']['btmcTimestamps'])
+        {
+            $functionBody .= '->withTimestamps()';
+        }
+
+        // Add a semicolon
+        $functionBody .= ';';
+
+        // Add the function body to the function template
+        $result = str_replace('{{functionBody}}', $functionBody, $result);
+
+
+        // Return the final function block
         return $result;
     }
 
 
     /**
-     * Replaces the className tag with the actual class name in the migration template
-     * @param  string $migrationContent The contents of the migration file with className tag present
-     * @param  string $tableName        The name of the table of this migration file
-     * @return string                   The migration file content with class name replaced
+     * Given a relation type code, get the function name as it goes inside
+     * Eloquent
+     * @param  string $relationType The relation type code
+     * @return string               The function name of the relation as in Eloquent
      */
-    private function addClassName($migrationContent, $tableName)
+    private function getFunctionNameFromRelationType($relationType)
     {
-        // Class name is the name of the table uppercased and without underscores
-        $className = 'Create' . ucwords($tableName) . 'Table';
-        $className = str_replace('_', '', $className);
+        switch ($relationType)
+        {
+            case 'ho':
+                return 'hasOne';
 
-        return str_replace('{{className}}', $className, $migrationContent);
+            case 'hm':
+                return 'hasMany';
+
+            case 'bt':
+                return 'belongsTo';
+
+            case 'mo':
+                return 'morphOne';
+
+            case 'mm':
+                return 'morphMany';
+
+            case 'mt':
+                return 'morphTo';
+
+            case 'btm':
+            case 'btmc':
+                return 'belongsToMany';
+        }
     }
 
 
     /**
-     * Adds a field line to the given migration content, taking into account
-     * the indentation. This function preserves the fields tag for future additions.
-     * @param  string $migrationContent The content of the migration file with fields tag present
-     * @param  string $fieldLine        The line that has to be appended to the list of fields
-     * @return string                   The migration file content with the field added
+     * Add the given function block at the appropriate location of the model file
+     * template
+     * @param  string $modelFileContents The model file contents
+     * @param  string $functionBlock     The generated function block
+     * @return string                    The new model file contents
      */
-    private function addFieldLine($migrationContent, $fieldLine)
+    private function addRelationFunction($modelFileContents, $functionBlock)
     {
-        return str_replace('{{fields}}', $fieldLine . "\n            {{fields}}", $migrationContent);
+        return str_replace('    {{relationalFunctions}}',
+            "{$functionBlock}\n    {{relationalFunctions}}",
+            $modelFileContents
+        );
     }
 
 
     /**
-     * Removes the trailing fields tag after all the field have been added
-     * @param  string $migrationContent The content of the migration file with fields tag present
-     * @return string                   The migration file content with the fields tag removed
+     * Remove the relation function placeholder tag from the model contents
+     * @param  string $modelFileContents The model file contents
+     * @return string                    The new model file contents
      */
-    private function removeTrailingFieldsTag($migrationContent)
+    private function removeRelationFunctionTag($modelFileContents)
     {
-        return str_replace("\n            {{fields}}", '', $migrationContent);
+        return str_replace("\n" . '    {{relationalFunctions}}',
+            '',
+            $modelFileContents
+        );
     }
 }
