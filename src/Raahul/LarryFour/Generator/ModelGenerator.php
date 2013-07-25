@@ -116,6 +116,7 @@ class ModelGenerator
         $result = $this->addFillableIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.fillModels') : false);
         $result = $this->addGuardedIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.guardModels') : false);
         $result = $this->addHiddenIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.hideModels') : false);
+        $result = $this->addVisableIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.showModels') : false);
 
         // Expose the event hook stubs
         $result = $this->addHooksIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.exposeHooks') : array());
@@ -473,6 +474,40 @@ class ModelGenerator
         
         
         return str_replace('{{hiddenConfig}}',
+            $configs,
+            $modelFileContents
+        );
+    }
+    
+    /**
+     * Given the model file contents, put in the visable config in appropriate 
+     * location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  array  $visableConfig      visable config array
+     * @return string                    The updated model file contents
+     */
+    private function addVisableIfNeeded($modelFileContents, $visableConfig)
+    {
+        $configs = '';
+        if (!is_array($visableConfig) || empty($visableConfig))
+        {
+            
+        }
+        elseif($visableConfig['createVisable'])
+        {
+            if($visableConfig['allVisable'] == true)
+            {
+                $configs .= 'protected $visable = array'."('*'); "."\n";
+            }
+            else
+            {
+                $configs .= 'protected $visable = array'."(".implode(',',array_map(function($item){ return "'".$item."'"; }, $visableConfig['defaultVisable']))."); "."\n";
+            }
+            
+        }
+        
+        
+        return str_replace('{{visableConfig}}',
             $configs,
             $modelFileContents
         );
