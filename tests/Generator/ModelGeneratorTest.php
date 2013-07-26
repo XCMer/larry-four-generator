@@ -1,6 +1,7 @@
 <?php
 
 use \Raahul\LarryFour\ModelList;
+use \Raahul\LarryFour\Generator\MigrationGenerator;
 use \Raahul\LarryFour\Generator\ModelGenerator;
 use \Raahul\LarryFour\Tests\ParsedResult;
 
@@ -12,6 +13,14 @@ class ModelGeneratorTest extends PHPUnit_Framework_TestCase
      * @var \Raahul\LarryFour\Generator\ModelGenerator
      */
     private $modelGenerator = null;
+    
+    /**
+     * An instance of the migration generator so that it need not be created
+     * again and again
+     * @var \Raahul\LarryFour\Generator\MigrationGenerator
+     */
+    
+    private $migrationGenerator = null;
 
 
     public function testUserModelFile()
@@ -55,6 +64,7 @@ class ModelGeneratorTest extends PHPUnit_Framework_TestCase
         if (is_null($this->modelGenerator))
         {
             $this->modelGenerator = new ModelGenerator();
+            $this->migrationGenerator = new MigrationGenerator();
         }
 
         $this->assertEquals($expected, $this->modelGenerator->generate($model));
