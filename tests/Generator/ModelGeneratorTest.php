@@ -60,7 +60,7 @@ class ModelGeneratorTest extends PHPUnit_Framework_TestCase
         $models = $parsed['modelList']->all();
         $model = $models[$modelName];
 
-        $expected = file_get_contents(__DIR__ . '/data/' . $migrationFile);
+        //$expected = file_get_contents(__DIR__ . '/data/' . $migrationFile);
         $parsed = ParsedResult::getSampleParsedObject();
         $migrations = $parsed['migrationList']->all();
         $table = $migrations[$modelName];
