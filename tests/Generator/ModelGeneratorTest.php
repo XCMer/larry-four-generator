@@ -25,48 +25,58 @@ class ModelGeneratorTest extends PHPUnit_Framework_TestCase
 
     public function testUserModelFile()
     {
-        $this->runGeneratedModelTest('User', 'model_user');
+        $this->runGeneratedModelTest('User', 'model_user','migration_user');
     }
 
     public function testPostModelFile()
     {
-        $this->runGeneratedModelTest('Post', 'model_post');
+        $this->runGeneratedModelTest('Post', 'model_post','migration_user');
     }
 
     public function testImageModelFile()
     {
-        $this->runGeneratedModelTest('Image', 'model_image');
+        $this->runGeneratedModelTest('Image', 'model_image','migration_image');
     }
 
     public function testRoleModelFile()
     {
-        $this->runGeneratedModelTest('Role', 'model_role');
+        $this->runGeneratedModelTest('Role', 'model_role','migration_role');
     }
 
     public function testStuffModelFile()
     {
-        $this->runGeneratedModelTest('Stuff', 'model_stuff');
+        $this->runGeneratedModelTest('Stuff', 'model_stuff','migration_stuff');
     }
 
     public function testThumbModelFile()
     {
-        $this->runGeneratedModelTest('Thumb', 'model_thumb');
+        $this->runGeneratedModelTest('Thumb', 'model_thumb','migration_thumb');
     }
 
     private function runGeneratedModelTest($modelName, $modelFile)
     {
         $expected = file_get_contents(__DIR__ . '/model_data/' . $modelFile);
-
         $parsed = ParsedResult::getSampleParsedObject();
         $models = $parsed['modelList']->all();
         $model = $models[$modelName];
 
+        $expected = file_get_contents(__DIR__ . '/data/' . $migrationFile);
+        $parsed = ParsedResult::getSampleParsedObject();
+        $migrations = $parsed['migrationList']->all();
+        $table = $migrations[$modelName];
+
+        if (is_null($this->migrationGenerator))
+        {
+            $this->migrationGenerator = new MigrationGenerator();
+        }
+        
+        
         if (is_null($this->modelGenerator))
         {
             $this->modelGenerator = new ModelGenerator();
             $this->migrationGenerator = new MigrationGenerator();
         }
 
-        $this->assertEquals($expected, $this->modelGenerator->generate($model));
+        $this->assertEquals($expected, $this->modelGenerator->generate($model,$table));
     }
 }
