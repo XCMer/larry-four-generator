@@ -65,12 +65,6 @@ class ModelGeneratorTest extends PHPUnit_Framework_TestCase
         $migrations = $parsed['migrationList']->all();
         $table = $migrations[$modelName];
 
-        if (is_null($this->migrationGenerator))
-        {
-            $this->migrationGenerator = new MigrationGenerator();
-        }
-        
-        
         if (is_null($this->modelGenerator))
         {
             $this->modelGenerator = new ModelGenerator();
