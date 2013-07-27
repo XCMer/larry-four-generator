@@ -75,10 +75,10 @@ class ModelGenerator
         
         // Initialize processing config
         $processModelFlag = false;
-        $processModelItems = Config::get('larryfour::validation.processSelection.items');
+        $processModelItems = Config::get('larryfour::validation.processSelection.items',array());
         $processModelFunction = Config::get('larryfour::validation.processSelection.function');
             
-        if(Config::get('larryfour::validation.processModels'))
+        if(Config::get('larryfour::validation.processModels',false))
         {
             switch($processModelFunction)
             {
@@ -133,7 +133,7 @@ class ModelGenerator
         $configureSlugGetters = array();
                                 
         
-        if(Config::get('larryfour::slugs.createSlugs'))
+        if(Config::get('larryfour::slugs.createSlugs',false))
         {
             switch($selectSlugFunction)
             {
@@ -181,6 +181,16 @@ class ModelGenerator
         
         // Add in the model parent class
         $result = $this->addParentClass($result, $parentClass);
+        
+        
+        //TODO
+        //add internal uses implementation
+        //add factory muff config and implementation
+        //implement model-parentclass and model-namespaces from array
+        
+        //$result = $this->addInternalUseIfNeeded($result,  Config::get('larryfour::validation.internalUse.'.$model->modelName),false);
+        // Add in the model parent class
+        //$result = $this->addInternalUseIfNeeded($result,  Config::get('larryfour::validation.internalUse.'.$model->modelName),false);
         
         
         // Add in the model name
