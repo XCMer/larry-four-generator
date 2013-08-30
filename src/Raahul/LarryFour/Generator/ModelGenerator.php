@@ -307,16 +307,16 @@ class ModelGenerator
 
                 if(!empty($currentRules))
                 {
-                     $rules .= "'".$fieldName."' => array"."(".implode(',',array_map(function($item){ return "'".$item."'"; }, $currentRules))."), "."\n";
+                     $rules .= "        '".$fieldName."' => array"."(".implode(',',array_map(function($item){ return "'".$item."'"; }, $currentRules))."), "."\n";
                 }
                 elseif($validationConfig['includeEmpty'])
                 {
-                     $rules .= "'".$fieldName."' => array"."(), "."\n";
+                     $rules .= "        '".$fieldName."' => array"."(), "."\n";
                 }
                                
             }
        
-            $rules .= '); '."\n";
+            $rules .= '    ); '."\n";
         }
                 
         return str_replace('{{validationRules}}',
