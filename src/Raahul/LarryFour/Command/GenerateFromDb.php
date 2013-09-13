@@ -66,6 +66,8 @@ class GenerateFromDb extends Command {
         $this->larryWriter = new Writer($modelPath, $migrationPath);
 
         // Initialize the database parser
+        // TODO: Use DB::getDriverName() instead of hardcoded database driver name
+        // PostgreSQL isn't support by SchemaExtractor package. So we force it to use 'mysql' driver.
         $this->dbParser = new DbParser(new MigrationList(), new SchemaExtractor(), 'mysql');
     }
 
@@ -93,7 +95,40 @@ class GenerateFromDb extends Command {
         $tablesData = array();
         foreach ($tables as $table)
         {
-            $tablesData[ $table ] = DB::select("DESCRIBE $table");
+            if( DB::getDriverName() === 'mysql' ) {
+                $tablesData[ $table ] = DB::select("DESCRIBE $table");
+            } else if( DB::getDriverName() === 'pgsql' ) {
+                // PostgreSQL port of MySQL DESCRIBE statement
+                $tablesData[ $table ] = DB::select(
+                    "SELECT a.oid, c.column_name AS \"Field\", COALESCE(c.column_default, 'NULL') AS \"Default\", c.is_nullable AS \"Null\",
+                        CASE
+                          WHEN c.udt_name = 'bool' THEN 'boolean'
+                          WHEN c.udt_name = 'int2' THEN 'smallint' || COALESCE(NULLIF('('|| COALESCE(c.character_maximum_length::varchar, '') || ')', '()'), '')
+                          WHEN c.udt_name = 'int4' THEN 'int'
+                          WHEN c.udt_name = 'int8' THEN 'bigint'
+                          WHEN c.udt_name LIKE 'float_' THEN 'float'
+                          WHEN c.udt_name = 'timetz' THEN 'time'
+                          WHEN c.udt_name = 'timestamptz' THEN 'timestamp'
+                          WHEN c.udt_name ~ '_?bytea' THEN 'blob' || COALESCE(NULLIF('('|| COALESCE(c.character_maximum_length::varchar, '') || ')', '()'), '')
+                          WHEN c.udt_name = 'numeric' THEN 'decimal' || COALESCE(NULLIF('('|| COALESCE(c.numeric_precision::varchar, '') || ',' || COALESCE(c.numeric_scale::varchar, '') || ')', '(,)'), '')
+                          WHEN p.consrc LIKE '%ARRAY[%]%' THEN 'enum' || '(' || regexp_replace(regexp_replace(p.consrc, '.+ARRAY\[([^\[\]]+)\].+', '\\1'), '::[a-z0-9 ]+', '', 'g') || ')'
+                        ELSE c.udt_name || COALESCE(NULLIF('(' || COALESCE(c.character_maximum_length::varchar, '') ||')', '()'), '')
+                        END AS \"Type\",
+                        CASE
+                          WHEN c.column_default LIKE 'nextval(%)' THEN 'auto_increment'
+                        END AS \"Extra\",
+                        CASE
+                          WHEN p.contype = 'p' THEN 'PRI'
+                          WHEN p.contype = 'u' AND p.conkey::text LIKE '{_,%}' THEN 'MUL'
+                          WHEN p.contype = 'u' THEN 'UNI'
+                        END AS \"Key\"
+                        FROM INFORMATION_SCHEMA.COLUMNS c
+                        INNER JOIN (SELECT attrelid AS oid, attname FROM pg_attribute
+                          WHERE attrelid = ( SELECT oid FROM pg_class WHERE relname = '$table') ) a ON a.attname = c.column_name
+                          LEFT JOIN pg_constraint p ON p.conrelid = a.oid AND c.dtd_identifier::integer = ANY (p.conkey )
+                        WHERE c.table_name = '$table'"
+                );
+            }
         }
 
         // Get migrations
@@ -121,8 +156,8 @@ class GenerateFromDb extends Command {
      */
     protected function verifyDriver()
     {
-        $driver = DB::connection()->getPdo()->getAttribute(\PDO::ATTR_DRIVER_NAME);
-        $supported = array('mysql');
+        $driver = DB::getDriverName();
+        $supported = array('mysql', 'pgsql');
         if ( !in_array($driver, $supported)  )
         {
             $this->error("You are using an unsupported database driver. Only the following drivers are supported for now: " . implode(", ", $supported));
@@ -198,7 +233,11 @@ class GenerateFromDb extends Command {
      */
     protected function getDbName()
     {
-        $select = DB::select('SELECT database() as dbname');
+        if( DB::getDriverName() === 'mysql' ) {
+            $select = DB::select('SELECT database() as dbname');
+        } else if( DB::getDriverName() === 'pgsql' ) {
+            $select = DB::select('SELECT current_database() as dbname');
+        }
 
         return $select[0]->dbname;
     }
@@ -212,14 +251,26 @@ class GenerateFromDb extends Command {
     protected function getAllTables($dbname)
     {
         $tables = array();
-        $tableRows = DB::select('SHOW tables');
-        $column = "Tables_in_{$dbname}";
+        if( DB::getDriverName() === 'mysql' ) {
+            $tableRows = DB::select('SHOW tables');
+            $column = "Tables_in_{$dbname}";
 
-        foreach ($tableRows as $row)
-        {
-            $tables[] = $row->$column;
+            foreach ($tableRows as $row)
+            {
+                $tables[] = $row->$column;
+            }
+        } else if( DB::getDriverName() === 'pgsql' ) {
+            $tableRows = DB::select(
+                "SELECT table_name FROM information_schema.tables
+                  WHERE table_type = 'BASE TABLE'
+                  AND table_schema = 'public'
+                  ORDER BY table_type, table_name"
+            );
+            foreach ($tableRows as $row)
+            {
+                $tables[] = $row->table_name;
+            }
         }
-
         return $tables;
     }
 
