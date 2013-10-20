@@ -190,6 +190,12 @@ class Parser
         // Parse the field definition
         $parsed = $this->fieldParser->parse(trim($line));
 
+        // Check for errors
+        if (!$parsed)
+        {
+            throw new ParseError("Could not parse field line. Check for errors like misplaced quotes.");
+        }
+
         // Check if the field is timestamps
         if ($parsed['type'] == 'timestamps')
         {

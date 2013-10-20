@@ -107,6 +107,16 @@ EOF;
     $this->assertErrorOutput($input, "Model definition for model \"Profile\" not found, but relation to it is defined in model \"User\"");
     }
 
+    public function testSegmentParsingError()
+    {
+        $input = <<<EOF
+User:
+    access enum "admin","jack","
+EOF;
+
+    $this->assertErrorOutput($input, "[Line 2] Could not parse field line. Check for errors like misplaced quotes.");
+    }
+
     private function assertErrorOutput($input, $expectedError)
     {
         try {
