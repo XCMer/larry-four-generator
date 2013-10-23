@@ -96,7 +96,7 @@ class GenerateFromDb extends Command {
         foreach ($tables as $table)
         {
             if( DB::getDriverName() === 'mysql' ) {
-                $tablesData[ $table ] = DB::select("DESCRIBE $table");
+                $tablesData[ $table ] = DB::select("DESCRIBE `$table`");
             } else if( DB::getDriverName() === 'pgsql' ) {
                 // PostgreSQL port of MySQL DESCRIBE statement
                 $tablesData[ $table ] = DB::select(
