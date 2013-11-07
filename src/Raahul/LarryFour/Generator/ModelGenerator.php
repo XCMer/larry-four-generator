@@ -1,6 +1,6 @@
 <?php namespace Raahul\LarryFour\Generator;
 
-use Config;
+use \Illuminate\Support\Facades\Config;
 class ModelGenerator
 {
     /**
@@ -123,12 +123,12 @@ class ModelGenerator
         
         // Initialize processing config
         $selectSlugFlag = false;
-        $selectSlugItems = Config::get('larryfour::slugs.selectSlugs.items');
-        $selectSlugFunction = Config::get('larryfour::slugs.selectSlugs.function');
+        $selectSlugItems = Config::get('larryfour::slugs.selectSlugs.items',array());
+        $selectSlugFunction = Config::get('larryfour::slugs.selectSlugs.function','except');
         $modelFields = array_keys($columns);
 
         $configureSlugFlag = false;
-        $configureSlugItems = Config::get('larryfour::slugs.configureSlugs');
+        $configureSlugItems = Config::get('larryfour::slugs.configureSlugs',array());
         $configureSlugRuleset = array();
         $configureSlugGetters = array();
                                 

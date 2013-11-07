@@ -4,6 +4,7 @@ use \Raahul\LarryFour\ModelList;
 use \Raahul\LarryFour\Generator\MigrationGenerator;
 use \Raahul\LarryFour\Generator\ModelGenerator;
 use \Raahul\LarryFour\Tests\ParsedResult;
+use \Mockery as m;
 
 class ModelGeneratorTest extends PHPUnit_Framework_TestCase
 {
@@ -22,6 +23,54 @@ class ModelGeneratorTest extends PHPUnit_Framework_TestCase
     
     private $migrationGenerator = null;
 
+    
+    public function setUp()
+    {
+        parent::setUp();
+
+        $app = m::mock('AppMock');
+        $app->shouldReceive('instance')->once()->andReturn($app);
+
+        $config = m::mock('ConfigMock');
+        \Illuminate\Support\Facades\Facade::setFacadeApplication($app);
+        \Illuminate\Support\Facades\Config::swap($config);
+        
+        //$config->shouldReceive('get')->once()->with('larryfour::validation.processModels')->andReturn(false);
+        $config->shouldReceive('get')->once()->with('larryfour::validation.processSelection.items',array())->andReturn(array());
+        $config->shouldReceive('get')->once()->with('larryfour::validation.processSelection.function')->andReturn('except');
+        $config->shouldReceive('get')->once()->with('larryfour::validation.processModels',false)->andReturn(false);
+        $config->shouldReceive('get')->once()->with('larryfour::validation.defaults.parentClass')->andReturn('Eloquent');
+        
+        
+        $config->shouldReceive('get')->once()->with('larryfour::slugs.selectSlugs.items',array())->andReturn(array());
+        $config->shouldReceive('get')->once()->with('larryfour::slugs.selectSlugs.function','except')->andReturn('except');
+        
+        $config->shouldReceive('get')->once()->with('larryfour::slugs.configureSlugs',array())->andReturn(array(
+        'default' => array(
+            'required' => array('title','slug'),
+            'forbidden' => array(),
+            'rules' => array(
+                'build_from' => 'title',
+                'save_to'    => 'slug',
+                'method'     => null,
+                'separator'  => '-',
+                'unique'     => true,
+                'on_update'  => false,
+            ),
+            'builder' => array(
+              'createGetters' => true,
+              'mapGetters' => array(
+                  array('methodName'=>'Title','fieldName'=>'title'),
+                  ),
+            ))));
+        
+        $config->shouldReceive('get')->once()->with('larryfour::slugs.createSlugs',false)->andReturn(false);
+    }
+
+    protected function tearDown() 
+    {
+         m::close();
+    }
 
     public function testUserModelFile()
     {
@@ -60,10 +109,9 @@ class ModelGeneratorTest extends PHPUnit_Framework_TestCase
         $models = $parsed['modelList']->all();
         $model = $models[$modelName];
 
-        //$expected = file_get_contents(__DIR__ . '/data/' . $migrationFile);
         $parsed = ParsedResult::getSampleParsedObject();
         $migrations = $parsed['migrationList']->all();
-        $table = $migrations[$modelName];
+        
 
         if (is_null($this->modelGenerator))
         {
@@ -71,6 +119,8 @@ class ModelGeneratorTest extends PHPUnit_Framework_TestCase
             $this->migrationGenerator = new MigrationGenerator();
         }
 
-        $this->assertEquals($expected, $this->modelGenerator->generate($model,$table));
+        $generated = $this->modelGenerator->generate($model,$migrations);
+        $this->assertEquals( preg_replace(array('/\s{2,}/', '/[\t\n]/'), ' ', $expected), preg_replace(array('/\s{2,}/', '/[\t\n]/'),' ', $generated));
+        
     }
 }
