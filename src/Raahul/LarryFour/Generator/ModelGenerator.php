@@ -75,10 +75,10 @@ class ModelGenerator
         
         // Initialize processing config
         $processModelFlag = false;
-        $processModelItems = Config::get('larryfour::validation.processSelection.items');
+        $processModelItems = Config::get('larryfour::validation.processSelection.items',array());
         $processModelFunction = Config::get('larryfour::validation.processSelection.function');
             
-        if(Config::get('larryfour::validation.processModels'))
+        if(Config::get('larryfour::validation.processModels',false))
         {
             switch($processModelFunction)
             {
@@ -116,6 +116,7 @@ class ModelGenerator
         $result = $this->addFillableIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.fillModels') : false);
         $result = $this->addGuardedIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.guardModels') : false);
         $result = $this->addHiddenIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.hideModels') : false);
+        $result = $this->addVisableIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.showModels') : false);
 
         // Expose the event hook stubs
         $result = $this->addHooksIfNeeded($result, $processModelFlag ? Config::get('larryfour::validation.exposeHooks') : array());
@@ -132,7 +133,7 @@ class ModelGenerator
         $configureSlugGetters = array();
                                 
         
-        if(Config::get('larryfour::slugs.createSlugs'))
+        if(Config::get('larryfour::slugs.createSlugs',false))
         {
             switch($selectSlugFunction)
             {
@@ -180,6 +181,16 @@ class ModelGenerator
         
         // Add in the model parent class
         $result = $this->addParentClass($result, $parentClass);
+        
+        
+        //TODO
+        //add internal uses implementation
+        //add factory muff config and implementation
+        //implement model-parentclass and model-namespaces from array
+        
+        //$result = $this->addInternalUseIfNeeded($result,  Config::get('larryfour::validation.internalUse.'.$model->modelName),false);
+        // Add in the model parent class
+        //$result = $this->addInternalUseIfNeeded($result,  Config::get('larryfour::validation.internalUse.'.$model->modelName),false);
         
         
         // Add in the model name
@@ -473,6 +484,40 @@ class ModelGenerator
         
         
         return str_replace('{{hiddenConfig}}',
+            $configs,
+            $modelFileContents
+        );
+    }
+    
+    /**
+     * Given the model file contents, put in the visable config in appropriate 
+     * location
+     * @param  string $modelFileContents The contents of the model file
+     * @param  array  $visableConfig      visable config array
+     * @return string                    The updated model file contents
+     */
+    private function addVisableIfNeeded($modelFileContents, $visableConfig)
+    {
+        $configs = '';
+        if (!is_array($visableConfig) || empty($visableConfig))
+        {
+            
+        }
+        elseif($visableConfig['createVisable'])
+        {
+            if($visableConfig['allVisable'] == true)
+            {
+                $configs .= 'protected $visable = array'."('*'); "."\n";
+            }
+            else
+            {
+                $configs .= 'protected $visable = array'."(".implode(',',array_map(function($item){ return "'".$item."'"; }, $visableConfig['defaultVisable']))."); "."\n";
+            }
+            
+        }
+        
+        
+        return str_replace('{{visableConfig}}',
             $configs,
             $modelFileContents
         );
