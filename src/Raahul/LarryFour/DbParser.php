@@ -84,6 +84,7 @@ class DbParser
                 'type' => $type,
                 'parameters' => $this->getLaravelColumnParameters($column->parameters, $type),
                 'default' => is_null($column->defaultValue) ? '' : $column->defaultValue,
+                'unsigned' => $column->unsigned,
                 'nullable' => $column->null,
                 'primary' => ( $column->index == 'primary' ),
                 'unique' => ( $column->index == 'unique' ),
@@ -110,7 +111,7 @@ class DbParser
         }
 
         // Special handling for tinyints with precision 1, that can be bools
-        if (($column->type == 'tinyint') && ($column->parameters == array(1)))
+        if (($column->type == 'tinyint'))
         {
             return 'boolean';
         }
