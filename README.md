@@ -1,8 +1,9 @@
 # Larry Four - The Laravel 4 Model & Migration Generator
+**(with extended model generation options by Gadoma)**
 
-[![Build Status](https://travis-ci.org/XCMer/larry-four-generator.png?branch=master)](https://travis-ci.org/XCMer/larry-four-generator)
+[![Build Status](https://travis-ci.org/Gadoma/larry-four-generator.png?branch=Gadoma-extendedmodels)](https://travis-ci.org/Gadoma/larry-four-generator)
 
-**Current Version:** 1.0.1 (stable)
+**Current Version:** 1.0.1 (stable) //1.1.0
 
 If you are not already familiar, I had released a generator for Laravel called <a href="https://github.com/XCMer/larry-laravel-generator">Larry</a>. This version is intended to work with Laravel 4, while supporting new features like polymorphic relations.
 
@@ -49,7 +50,7 @@ Here are the steps:
 - Run `composer update`
 - Add `'Raahul\LarryFour\LarryFourServiceProvider'` to the `providers` array of `app/config/app.php`
 
-## Configuration
+## Configuration (//TODO: This chapter needs an update)
 
 First you have to publish Larry Four settings:
 
