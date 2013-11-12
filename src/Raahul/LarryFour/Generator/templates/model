@@ -13,6 +13,7 @@ class {{modelName}} extends {{parentClass}}
     {{fillableConfig}}
     {{guardedConfig}}
     {{hiddenConfig}}
+    {{visableConfig}}
    
     
     {{eventHooks}}

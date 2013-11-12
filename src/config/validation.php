@@ -140,6 +140,21 @@ return array(
         'allHidden' => false,
     ),
     
+    /*
+      |--------------------------------------------------------------------------
+      | Visable fields
+      |--------------------------------------------------------------------------
+      |
+      | Defines if the model should be updated with visable array stub with
+      | defualt content. Only visible fields are excluded in model's JSON form.
+      |
+     */
+
+    'showModels' => array(
+        'createVisable' => false,
+        'defaultVisable' => array(),
+        'allVisable' => false,
+    ),
     
     
     /*
