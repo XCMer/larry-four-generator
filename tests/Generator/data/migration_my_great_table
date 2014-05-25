@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMygreattableTable extends Migration {
+class CreateMyGreatTableTable extends Migration {
 
     /**
      * Run the migrations.

@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTuTable extends Migration {
+class CreateTUTable extends Migration {
 
     /**
      * Run the migrations.

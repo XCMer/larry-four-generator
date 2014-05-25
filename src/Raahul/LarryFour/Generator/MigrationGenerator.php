@@ -189,7 +189,7 @@ class MigrationGenerator
     private function addClassName($migrationContent, $tableName)
     {
         // Class name is the name of the table uppercased and without underscores
-        $className = 'Create' . ucwords($tableName) . 'Table';
+        $className = 'Create' . $this->camelCase($tableName) . 'Table';
         $className = str_replace('_', '', $className);
 
         return str_replace('{{className}}', $className, $migrationContent);
@@ -217,5 +217,19 @@ class MigrationGenerator
     private function removeTrailingFieldsTag($migrationContent)
     {
         return str_replace("\n            {{fields}}", '', $migrationContent);
+    }
+
+
+    /**
+     * Converts a under_scored string into UnderScored
+     * @param  string $string The input underscored string
+     * @return string         Camel-cased output string
+     */
+    private function camelCase($string)
+    {
+        $string = str_replace('_', ' ', $string);
+        $string = ucwords($string);
+
+        return str_replace(' ', '', $string);
     }
 }
